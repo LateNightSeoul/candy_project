@@ -5,6 +5,9 @@ import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;
 import com.example.candy.security.Jwt;
 import com.example.candy.service.user.UserService;
+
+import javassist.NotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +43,9 @@ public class UserController {
                 new JoinResponseDto(apiToken, new UserDto(user))
         );
     }
-
-
+    
+    @PostMapping("/find_email")
+    public ApiResult<String> findEmail(@RequestBody Map<String, String> request) throws NotFoundException {
+    	return ApiResult.OK(userService.find_email(request.get("name")));
+    }
 }

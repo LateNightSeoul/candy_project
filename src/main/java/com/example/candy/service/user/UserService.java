@@ -61,12 +61,37 @@ public class UserService {
         user.afterLoginSuccess();
         return user;
     }
+    
+    @Transactional
+    public String find_email(String name) throws NotFoundException {
+    	checkArgument(name != null, "name must be provided.");
+    	
+    	User user = findByName(name)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	return new StringBuilder(user.getEmail()).toString();
+    }
+    
+//    @Transactional
+//    public String find_pw(String email, String phone) throws NotFoundException {
+//    	User user = findByEmail(email)
+//    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+//    	
+//    	
+//    }
 
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         checkArgument(email != null, "email must be provided.");
 
         return userRepository.findByEmail(email);
+    }
+    
+    @Transactional(readOnly = true)
+    public Optional<User> findByName(String name) {
+    	checkArgument(name != null, "name must be provided.");
+    	
+    	return userRepository.findByName(name);
     }
 
     public Optional<User> findById(Long userId) {
