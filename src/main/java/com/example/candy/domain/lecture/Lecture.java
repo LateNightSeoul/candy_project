@@ -2,13 +2,15 @@ package com.example.candy.domain.lecture;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.problem.Problem;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Lecture {
     @Id
     @GeneratedValue
