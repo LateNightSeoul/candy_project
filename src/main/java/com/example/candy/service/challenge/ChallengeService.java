@@ -13,6 +13,7 @@ import com.example.candy.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -83,6 +84,14 @@ public class ChallengeService {
         int candyAmount = findChallengeHistory.getAssignedCandy();
         findChallengeHistory.setAssignedCandy(0);
         return candyAmount;
+    }
+
+    public int completeChallenge(Long challengeId, Long userId) {
+        ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
+                .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
+        challengeHistory.setComplete(true);
+        challengeHistory.setCompleteDate(LocalDateTime.now());
+        return challengeHistory.getAssignedCandy();
     }
 
     public Optional<Challenge> findById(Long challengeId) {
