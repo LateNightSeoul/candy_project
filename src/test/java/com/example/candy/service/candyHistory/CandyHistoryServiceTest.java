@@ -73,4 +73,25 @@ class CandyHistoryServiceTest {
         CandyHistory findCandy = candyHistoryService.findLatestOne(user.getId());
         assertEquals(findCandy.getTotalCandy(), 130);
     }
+
+    @Test
+    @Order(4)
+    @DisplayName("with draw candy")
+    void 캔디_배정() {
+
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("with draw candy")
+    void 캔디_습득() {
+
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("with draw candy")
+    void 캔디_인출() {
+
+    }
 }
