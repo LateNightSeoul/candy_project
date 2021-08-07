@@ -40,4 +40,14 @@ public class ChallengeHistory {
     private LocalDateTime createDate;
     private LocalDateTime modifiedDate;
 
+    public ChallengeHistory(User user, Challenge challenge, int assignedCandy) {
+        this.user = user;
+        this.challenge = challenge;
+        this.score = 0;
+        this.assignedCandy = assignedCandy;
+        this.complete = false;
+        this.tryCount = 0;
+        this.createDate = LocalDateTime.now();
+    }
+
 }
