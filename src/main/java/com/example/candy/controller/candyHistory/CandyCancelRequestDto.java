@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+
 public class CandyCancelRequestDto {
-    private final Long challengeId;
+    private Long challengeId;
+    public CandyCancelRequestDto() {}
+    public CandyCancelRequestDto(Long challengeId) {this.challengeId = challengeId;}
 }
