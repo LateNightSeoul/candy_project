@@ -2,8 +2,10 @@ package com.example.candy.service.candyHistory;
 
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
+import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
+import com.example.candy.service.challenge.ChallengeService;
 import com.example.candy.service.user.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ class CandyHistoryServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired private ChallengeService challengeService;
 
     private User user;
     private CandyHistory candyHistory_charge;
@@ -58,12 +62,14 @@ class CandyHistoryServiceTest {
         assertEquals(candyHistory.getStudentCandy(), 0);
         CandyHistory findCandy = candyHistoryService.findLatestOne(user.getId());
         assertEquals(findCandy.getTotalCandy(), 80);
+        assertEquals(findCandy.getParentCandy(), 80);
 
         CandyHistory candyHistory2 = candyHistoryService.chargeCandy(user.getId(), 50);
         assertEquals(candyHistory2.getTotalCandy(), 130);
         assertEquals(candyHistory2.getStudentCandy(), 0);
         CandyHistory findCandy2 = candyHistoryService.findLatestOne(user.getId());
         assertEquals(findCandy2.getTotalCandy(), 130);
+        assertEquals(findCandy2.getParentCandy(), 130);
     }
 
     @Test
@@ -78,6 +84,13 @@ class CandyHistoryServiceTest {
     @Order(4)
     @DisplayName("with draw candy")
     void 캔디_배정() {
+        Challenge challenge = new Challenge();
+        challenge.setTitle("test challenge");
+        challengeService.saveChallenge(challenge);
+
+        CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        assertEquals(candyHistory.getTotalCandy(), 100);
+        assertEquals(candyHistory.getParentCandy(), 100);
 
     }
 
