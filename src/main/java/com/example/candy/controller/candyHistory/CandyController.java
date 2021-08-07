@@ -56,4 +56,11 @@ public class CandyController {
         candyHistoryService.cancelCandy(authentication.id, candyCancelRequestDto.getChallengeId());
         return ApiResult.OK(null);
     }
+
+    @PostMapping("/attain")
+    public ApiResult attainCandy(@AuthenticationPrincipal JwtAuthentication authentication,
+                                 @RequestBody CandyAttainRequestDto candyAttainRequestDto) {
+        candyHistoryService.attainCandy(authentication.id, candyAttainRequestDto.getChallengeId());
+        return ApiResult.OK(null);
+    }
 }
