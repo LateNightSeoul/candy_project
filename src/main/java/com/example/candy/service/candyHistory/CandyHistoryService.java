@@ -54,6 +54,36 @@ public class CandyHistoryService {
         return save(candyHistory);
     }
 
+    public CandyHistory withdrawCandy(Long userId, int amount) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("no such userId"));
+
+        CandyHistory latestOne = findLatestOne(userId);
+        if (latestOne.getStudentCandy() < amount) {
+            throw new IllegalArgumentException("Not Enough Candy To Withdraw");
+        }
+        CandyHistory candy = CandyHistory.builder()
+                .user(user)
+                .createDate(LocalDateTime.now())
+                .amount(amount)
+                .studentCandy(latestOne.getStudentCandy() - amount)
+                .parentCandy(latestOne.getParentCandy())
+                .totalCandy(latestOne.getTotalCandy() - amount)
+                .eventType(EventType.WITHDRAW)
+                .build();
+        return save(candy);
+    }
+
+    public int candyStudent(Long userId) {
+        CandyHistory latestOne = findLatestOne(userId);
+        return latestOne.getStudentCandy();
+    }
+
+    public int candyParent(Long userId) {
+        CandyHistory latestOne = findLatestOne(userId);
+        return latestOne.getParentCandy();
+    }
+
     public CandyHistory findLatestOne(Long userId) { return candyHistoryRepository.findTopByUser_IdOrderByCreateDateDesc(userId); }
 
     public CandyHistory save(CandyHistory candyHistory) {
