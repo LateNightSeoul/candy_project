@@ -11,11 +11,4 @@ public class ChoiceDto {
 
     private String content;
 
-    public Choice toEntity() {
-        return Choice.builder()
-                .seq(seq)
-                .content(content)
-                .build();
-    }
-
 }
