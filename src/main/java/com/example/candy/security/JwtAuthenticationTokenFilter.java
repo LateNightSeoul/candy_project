@@ -48,11 +48,10 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        // SecurityContextHolder 에서 인증정보를 찾을 수 없다면...
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            // HTTP 요청 Header 에서 JWT 값을 가져와본다.
             String authorizationToken = obtainAuthorizationToken(request);
-            // JWT 값이 있다면, JWT 값을 검증하고 인증정보를 생성해 SecurityContextHolder 에 추가한다.
+            System.out.println("**************************");
+            System.out.println(authorizationToken);
             if (authorizationToken != null) {
                 try {
                     Jwt.Claims claims = verify(authorizationToken);
