@@ -5,12 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class CandyChargeRequestDto {
-    private final Long userId;
     private final int amount;
     private final EventType eventType;
 
-    CandyChargeRequestDto(Long userId, int amount) {
-        this.userId = userId;
+    CandyChargeRequestDto(int amount) {
         this.amount = amount;
         this.eventType = EventType.CHARGE;
     }
