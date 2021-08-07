@@ -41,4 +41,19 @@ public class CandyController {
                 candyWithdrawRequestDto.getAmount())
         );
     }
+
+    @PostMapping("/assign")
+    public ApiResult assignCandy(@AuthenticationPrincipal JwtAuthentication authentication,
+                                 @RequestBody CandyAssignRequestDto candyAssignRequestDto) {
+        candyHistoryService.assignCandy(authentication.id,
+                candyAssignRequestDto.getChallengeId(), candyAssignRequestDto.getCandyAmount());
+        return ApiResult.OK(null);
+    }
+
+    @PostMapping("/cancel")
+    public ApiResult cancelCandy(@AuthenticationPrincipal JwtAuthentication authentication,
+                                 @RequestBody CandyCancelRequestDto candyCancelRequestDto) {
+        candyHistoryService.cancelCandy(authentication.id, candyCancelRequestDto.getChallengeId());
+        return ApiResult.OK(null);
+    }
 }
