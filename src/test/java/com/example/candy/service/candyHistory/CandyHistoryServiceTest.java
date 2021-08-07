@@ -85,7 +85,6 @@ class CandyHistoryServiceTest {
     @DisplayName("with draw candy")
     void 캔디_배정() {
         Challenge challenge = new Challenge();
-        challenge.setTitle("test challenge");
         challengeService.saveChallenge(challenge);
 
         CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);

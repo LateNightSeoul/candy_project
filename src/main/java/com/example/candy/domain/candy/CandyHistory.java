@@ -32,6 +32,7 @@ public class CandyHistory {
     private int totalCandy;
     private int parentCandy;
     private int studentCandy;
+    private int assignCandy;
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;

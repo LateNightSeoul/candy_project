@@ -95,9 +95,10 @@ public class CandyHistoryService {
 
         CandyHistory candyHistory = CandyHistory.builder()
                 .eventType(EventType.ASSIGN)
-                .totalCandy(latestOne.getTotalCandy() - amount)
+                .totalCandy(latestOne.getTotalCandy())
                 .parentCandy(latestOne.getParentCandy() - amount)
                 .studentCandy(latestOne.getStudentCandy())
+                .assignCandy(amount)
                 .amount(amount)
                 .createDate(LocalDateTime.now())
                 .user(user)
@@ -115,9 +116,10 @@ public class CandyHistoryService {
                 .user(user)
                 .createDate(LocalDateTime.now())
                 .amount(candyAmount)
+                .assignCandy(latestOne.getAssignCandy() - candyAmount)
                 .studentCandy(latestOne.getStudentCandy())
                 .parentCandy(latestOne.getParentCandy() + candyAmount)
-                .totalCandy(latestOne.getTotalCandy() + candyAmount)
+                .totalCandy(latestOne.getTotalCandy())
                 .eventType(EventType.CANCEL)
                 .build();
         return save(candyHistory);
@@ -134,6 +136,7 @@ public class CandyHistoryService {
                 .totalCandy(latestOne.getTotalCandy())
                 .parentCandy(latestOne.getParentCandy())
                 .studentCandy(latestOne.getStudentCandy() + attainCandyAmount)
+                .assignCandy(latestOne.getAssignCandy() - attainCandyAmount)
                 .amount(attainCandyAmount)
                 .createDate(LocalDateTime.now())
                 .user(user)
