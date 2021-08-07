@@ -32,11 +32,4 @@ public class ProblemDto {
 
     private LocalDateTime modifiedDate;
 
-    public Problem toEntity() {
-        return Problem.builder()
-                .seq(seq)
-                .content(content)
-                .build();
-    }
-
 }

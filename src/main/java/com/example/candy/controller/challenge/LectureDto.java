@@ -16,11 +16,4 @@ public class LectureDto {
 
     private String fileUrl;
 
-    public Lecture toEntity() {
-        return Lecture.builder()
-                .videoUrl(videoUrl)
-                .content(content)
-                .fileUrl(fileUrl)
-                .build();
-    }
 }
