@@ -2,6 +2,8 @@ package com.example.candy.service.challenge;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
+import com.example.candy.domain.lecture.Lecture;
+import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ChallengeService {
@@ -49,9 +50,10 @@ public class ChallengeService {
         return challengeHistory;
     }
 
-    public Long registerChallenge(Challenge challenge) {
-        challengeRepository.save(challenge);
-        return challenge.getId();
+    @Transactional
+    public Challenge registerChallenge(Challenge challenge) {
+        return challengeRepository.save(challenge);
+
     }
 
 
