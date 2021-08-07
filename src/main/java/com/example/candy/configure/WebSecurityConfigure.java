@@ -1,5 +1,6 @@
 package com.example.candy.configure;
 
+import com.example.candy.domain.user.Authority;
 import com.example.candy.security.Jwt;
 import com.example.candy.security.JwtAuthenticationProvider;
 import com.example.candy.security.JwtAuthenticationTokenFilter;
@@ -49,8 +50,12 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                     .and()
 
                 .authorizeRequests()
-                    .antMatchers("/").permitAll()
                     .antMatchers("/h2-console/**").permitAll()
+                    .antMatchers("/user/join").permitAll()
+                    .antMatchers("/auth/authenticate").permitAll()
+                    .antMatchers("/user/email/exist").permitAll()
+//                    .anyRequest().hasRole(Authority.STUDENT.value())
+                    .anyRequest().authenticated()
                     .and()
 
                 .formLogin()
@@ -74,8 +79,6 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder builder, JwtAuthenticationProvider authenticationProvider) {
-        // AuthenticationManager 는 AuthenticationProvider 목록을 지니고 있다.
-        // 이 목록에 JwtAuthenticationProvider 를 추가한다.
         builder.authenticationProvider(authenticationProvider);
     }
 
