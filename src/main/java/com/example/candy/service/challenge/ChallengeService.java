@@ -2,19 +2,18 @@ package com.example.candy.service.challenge;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
+import com.example.candy.domain.lecture.Lecture;
+import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
-import com.example.candy.repository.challenge.ChallengeHistoryRepositoryImpl;
 import com.example.candy.repository.challenge.ChallengeRepository;
 import com.example.candy.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class ChallengeService {
@@ -51,48 +50,11 @@ public class ChallengeService {
         return challengeHistory;
     }
 
-    public Long registerChallenge(Challenge challenge) {
-        challengeRepository.save(challenge);
-        return challenge.getId();
-    }
-
-    public void assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
-        Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_id(challengeId);
-        ChallengeHistory saveChallengeHistory;
-        if (findChallengeHistory.isPresent()) {
-            if (findChallengeHistory.get().isComplete() == true || findChallengeHistory.get().getAssignedCandy() != 0) {
-                throw new IllegalStateException("ChallengeHistory Already Exists");
-            }
-            findChallengeHistory.get().setAssignedCandy(amount);
-            saveChallengeHistory = findChallengeHistory.get();
-        } else {
-            Challenge findChallenge = findById(challengeId)
-                    .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
-            saveChallengeHistory = new ChallengeHistory(user, findChallenge, amount);
-        }
-        saveChallengeHistory(saveChallengeHistory);
-    }
-
-    public int cancelCandyAndGetCandyAmount(Long userId, Long challengeId) {
-        ChallengeHistory findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
-                .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
-        if (findChallengeHistory.isComplete() || findChallengeHistory.getAssignedCandy() == 0) {
-            throw new IllegalStateException("Can't Cancel Candy From ChallengeHistory");
-        }
-        int candyAmount = findChallengeHistory.getAssignedCandy();
-        findChallengeHistory.setAssignedCandy(0);
-        return candyAmount;
-    }
-
-    public Optional<Challenge> findById(Long challengeId) {
-        return challengeRepository.findById(challengeId);
-    }
-
-    public ChallengeHistory saveChallengeHistory(ChallengeHistory challengeHistory) {
-        return challengeHistoryRepository.save(challengeHistory);
-    }
-
-    public Challenge saveChallenge(Challenge challenge) {
+    @Transactional
+    public Challenge registerChallenge(Challenge challenge) {
         return challengeRepository.save(challenge);
+
     }
+
+
 }

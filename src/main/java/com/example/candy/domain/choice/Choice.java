@@ -1,13 +1,15 @@
 package com.example.candy.domain.choice;
 
 import com.example.candy.domain.problem.Problem;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Choice {
 
     @Id @GeneratedValue

@@ -26,9 +26,10 @@ public class ChallengeHistoryRepositoryTest {
     public void 챌린지_히스토리_확인() {
 
         //given
-        Challenge challenge = new Challenge();
-        challenge.setCategory(Category.ENGLISH);
-        challenge.setTitle("5형식");
+        Challenge challenge = Challenge.builder()
+                .category(Category.ENGLISH)
+                .description("5형식")
+                .build();
 
         User user = User.builder()
                 .name("최준혁")
@@ -54,14 +55,16 @@ public class ChallengeHistoryRepositoryTest {
     public void 사용자_챌린지히스토리찾기() {
 
         // given
-        Challenge challenge1 = new Challenge();
-        challenge1.setCategory(Category.ENGLISH);
-        challenge1.setTitle("5형식");
+        Challenge challenge1 = Challenge.builder()
+                .category(Category.ENGLISH)
+                .description("5형식")
+                .build();
 
 
-        Challenge challenge2 = new Challenge();
-        challenge2.setCategory(Category.ENGLISH);
-        challenge2.setTitle("4형식");
+        Challenge challenge2 = Challenge.builder()
+                .category(Category.ENGLISH)
+                .description("4형식")
+                .build();
 
 
         User user = User.builder()
@@ -95,7 +98,6 @@ public class ChallengeHistoryRepositoryTest {
             System.out.println("challengeHistory.getUser().getEmail() = " + challengeHistory.getUser().getEmail());
             System.out.println("challengeHistory.getChallenge().getCategory() = " + challengeHistory.getChallenge().getCategory());
         }
-
 
     }
 
