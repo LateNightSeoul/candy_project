@@ -59,7 +59,7 @@ public class ChallengeService {
     }
 
     public void assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
-        Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_id(challengeId);
+        Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, user.getId());
         ChallengeHistory saveChallengeHistory;
         if (findChallengeHistory.isPresent()) {
             if (findChallengeHistory.get().isComplete() == true || findChallengeHistory.get().getAssignedCandy() != 0) {
@@ -89,6 +89,9 @@ public class ChallengeService {
     public int completeChallenge(Long challengeId, Long userId) {
         ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
+        if (challengeHistory.getAssignedCandy() <= 0) {
+            throw new IllegalStateException("Assigned Candy is under 0");
+        }
         challengeHistory.setComplete(true);
         challengeHistory.setCompleteDate(LocalDateTime.now());
         return challengeHistory.getAssignedCandy();
