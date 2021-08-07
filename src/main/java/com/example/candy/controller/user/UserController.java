@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/exist")
+    @PostMapping("/email/exist")
     public ApiResult<Boolean> checkEmail(@RequestBody Map<String, String> request) {
         return ApiResult.OK(userService.findByEmail(request.get("email")).isPresent());
     }
