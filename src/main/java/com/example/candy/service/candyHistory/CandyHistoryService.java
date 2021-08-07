@@ -2,6 +2,7 @@ package com.example.candy.service.candyHistory;
 
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
+import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.candy.CandyHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Service
 public class CandyHistoryService {
@@ -103,6 +105,7 @@ public class CandyHistoryService {
         return save(candyHistory);
     }
 
+    @Transactional
     public CandyHistory cancelCandy(Long userId, Long challengeId) {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
@@ -116,6 +119,24 @@ public class CandyHistoryService {
                 .parentCandy(latestOne.getParentCandy() + candyAmount)
                 .totalCandy(latestOne.getTotalCandy() + candyAmount)
                 .eventType(EventType.CANCEL)
+                .build();
+        return save(candyHistory);
+    }
+
+    @Transactional
+    public CandyHistory attainCandy(Long userId, Long challengeId) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
+        int attainCandyAmount = challengeService.completeChallenge(challengeId, userId);
+        CandyHistory latestOne = findLatestOne(userId);
+        CandyHistory candyHistory = CandyHistory.builder()
+                .eventType(EventType.ATTAIN)
+                .totalCandy(latestOne.getTotalCandy())
+                .parentCandy(latestOne.getParentCandy())
+                .studentCandy(latestOne.getStudentCandy() + attainCandyAmount)
+                .amount(attainCandyAmount)
+                .createDate(LocalDateTime.now())
+                .user(user)
                 .build();
         return save(candyHistory);
     }
