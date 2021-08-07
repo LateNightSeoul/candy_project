@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class ChallengeService {
@@ -53,8 +55,45 @@ public class ChallengeService {
     @Transactional
     public Challenge registerChallenge(Challenge challenge) {
         return challengeRepository.save(challenge);
-
     }
 
+    public void assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
+        Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_id(challengeId);
+        ChallengeHistory saveChallengeHistory;
+        if (findChallengeHistory.isPresent()) {
+            if (findChallengeHistory.get().isComplete() == true || findChallengeHistory.get().getAssignedCandy() != 0) {
+                throw new IllegalStateException("ChallengeHistory Already Exists");
+            }
+            findChallengeHistory.get().setAssignedCandy(amount);
+            saveChallengeHistory = findChallengeHistory.get();
+        } else {
+            Challenge findChallenge = findById(challengeId)
+                    .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
+            saveChallengeHistory = new ChallengeHistory(user, findChallenge, amount);
+        }
+        saveChallengeHistory(saveChallengeHistory);
+    }
 
+    public int cancelCandyAndGetCandyAmount(Long userId, Long challengeId) {
+        ChallengeHistory findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
+                .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
+        if (findChallengeHistory.isComplete() || findChallengeHistory.getAssignedCandy() == 0) {
+            throw new IllegalStateException("Can't Cancel Candy From ChallengeHistory");
+        }
+        int candyAmount = findChallengeHistory.getAssignedCandy();
+        findChallengeHistory.setAssignedCandy(0);
+        return candyAmount;
+    }
+
+    public Optional<Challenge> findById(Long challengeId) {
+        return challengeRepository.findById(challengeId);
+    }
+
+    public ChallengeHistory saveChallengeHistory(ChallengeHistory challengeHistory) {
+        return challengeHistoryRepository.save(challengeHistory);
+    }
+
+    public Challenge saveChallenge(Challenge challenge) {
+        return challengeRepository.save(challenge);
+    }
 }
