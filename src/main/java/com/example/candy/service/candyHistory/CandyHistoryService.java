@@ -45,6 +45,9 @@ public class CandyHistoryService {
 
     @Transactional
     public CandyHistory chargeCandy(Long userId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Not valid amount");
+        }
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("no such userId"));
 
@@ -63,6 +66,9 @@ public class CandyHistoryService {
 
     @Transactional
     public CandyHistory withdrawCandy(Long userId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Not valid amount");
+        }
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("no such userId"));
 
@@ -84,6 +90,9 @@ public class CandyHistoryService {
 
     @Transactional
     public CandyHistory assignCandy(Long userId, Long challengeId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Not valid amount");
+        }
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         CandyHistory latestOne = findLatestOne(userId);
