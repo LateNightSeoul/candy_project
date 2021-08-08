@@ -2,8 +2,6 @@ package com.example.candy.service.challenge;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
-import com.example.candy.domain.lecture.Lecture;
-import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
@@ -58,7 +56,7 @@ public class ChallengeService {
         return challengeRepository.save(challenge);
     }
 
-    public void assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
+    public ChallengeHistory assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
         Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, user.getId());
         ChallengeHistory challengeHistory;
         if (findChallengeHistory.isPresent()) {
@@ -72,7 +70,7 @@ public class ChallengeService {
                     .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
             challengeHistory = new ChallengeHistory(user, findChallenge, amount);
         }
-        saveChallengeHistory(challengeHistory);
+        return saveChallengeHistory(challengeHistory);
     }
 
     public int cancelCandyAndGetCandyAmount(Long userId, Long challengeId) {
@@ -89,7 +87,7 @@ public class ChallengeService {
     public int completeChallenge(Long challengeId, Long userId) {
         ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
-        if (challengeHistory.getAssignedCandy() <= 0) {
+        if (challengeHistory.getAssignedCandy() < 0) {
             throw new IllegalStateException("Assigned Candy is under 0");
         }
         challengeHistory.setComplete(true);
@@ -100,6 +98,8 @@ public class ChallengeService {
     public Optional<Challenge> findById(Long challengeId) {
         return challengeRepository.findById(challengeId);
     }
+
+    public Optional<ChallengeHistory> findChallengeHistoryById(Long challengeId, Long userId) {return challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId);}
 
     public ChallengeHistory saveChallengeHistory(ChallengeHistory challengeHistory) {
         return challengeHistoryRepository.save(challengeHistory);
