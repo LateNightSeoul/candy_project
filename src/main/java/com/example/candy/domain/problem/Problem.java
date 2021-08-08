@@ -2,8 +2,7 @@ package com.example.candy.domain.problem;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.choice.Choice;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +11,9 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Problem {
 
     @Id @GeneratedValue
@@ -22,8 +24,8 @@ public class Problem {
     @JoinColumn(name = "challenge_id")
     private Challenge challenge;
 
-    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY)
-    private List<Choice> choices = new ArrayList<>();
+    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    private List<Choice> choices;
 
     private int seq;
 
@@ -40,4 +42,13 @@ public class Problem {
     private int multipleCount;
 
     private LocalDateTime modifiedDate;
+
+    public void addChoice(Choice choice) {
+        if (this.choices == null) {
+            this.choices = new ArrayList<>();
+        }
+        this.choices.add(choice);
+        choice.setProblem(this);
+    }
+
 }

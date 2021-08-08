@@ -1,14 +1,21 @@
 package com.example.candy.service.candyHistory;
 
 import com.example.candy.domain.candy.CandyHistory;
+import com.example.candy.domain.candy.EventType;
+import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
+import com.example.candy.service.challenge.ChallengeService;
 import com.example.candy.service.user.UserService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +29,10 @@ class CandyHistoryServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired private ChallengeService challengeService;
+
     private User user;
+    private CandyHistory candyHistory_charge;
 
     @BeforeAll
     void setUp() {
@@ -38,8 +48,107 @@ class CandyHistoryServiceTest {
     }
 
     @Test
+    @Order(1)
+    @DisplayName("init_candy")
+    @Transactional
     void 가입시_캔디_초기화() {
         CandyHistory candyHistory = candyHistoryService.initCandy(user);
         assertEquals(candyHistory.getUser().getEmail(), user.getEmail());
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("charge_candy")
+    @Transactional
+    void 캔디_충전() {
+        candyHistoryService.initCandy(user);
+        CandyHistory candyHistory = candyHistoryService.chargeCandy(user.getId(), 80);
+        assertEquals(candyHistory.getTotalCandy(), 80);
+        assertEquals(candyHistory.getStudentCandy(), 0);
+        CandyHistory findCandy = candyHistoryService.findLatestOne(user.getId());
+        assertEquals(findCandy.getTotalCandy(), 80);
+        assertEquals(findCandy.getParentCandy(), 80);
+
+        CandyHistory candyHistory2 = candyHistoryService.chargeCandy(user.getId(), 50);
+        assertEquals(candyHistory2.getTotalCandy(), 130);
+        assertEquals(candyHistory2.getStudentCandy(), 0);
+        CandyHistory findCandy2 = candyHistoryService.findLatestOne(user.getId());
+        assertEquals(findCandy2.getTotalCandy(), 130);
+        assertEquals(findCandy2.getParentCandy(), 130);
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("find_candy")
+    @Transactional
+    void 가장_최근_캔디_조회() {
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        CandyHistory findCandy = candyHistoryService.findLatestOne(user.getId());
+        assertEquals(findCandy.getTotalCandy(), 80);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("with draw candy")
+    @Transactional
+    void 캔디_배정() {
+        Challenge challenge = new Challenge();
+        challengeService.saveChallenge(challenge);
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        assertEquals(candyHistory.getTotalCandy(), 80);
+        assertEquals(candyHistory.getParentCandy(), 50);
+        assertEquals(candyHistory.getAssignCandy(), 30);
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("attian candy")
+    @Transactional
+    void 캔디_습득() {
+        Challenge challenge = new Challenge();
+        challengeService.saveChallenge(challenge);
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        CandyHistory candyHistory = candyHistoryService.attainCandy(user.getId(), challenge.getId());
+        assertEquals(candyHistory.getAssignCandy(), 0);
+        assertEquals(candyHistory.getStudentCandy(), 30);
+        assertEquals(candyHistory.getTotalCandy(), 80);
+        assertEquals(candyHistory.getParentCandy(), 50);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("with draw candy")
+    void 캔디_인출() {
+        Challenge challenge = new Challenge();
+        challengeService.saveChallenge(challenge);
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        candyHistoryService.attainCandy(user.getId(), challenge.getId());
+        CandyHistory candyHistory = candyHistoryService.withdrawCandy(user.getId(), 20);
+        assertEquals(candyHistory.getStudentCandy(), 10);
+        assertThrows(IllegalArgumentException.class, () -> {
+            candyHistoryService.withdrawCandy(user.getId(), 30);
+        });
+    }
+
+    @Test
+    @Order(7)
+    void 캔디_배정취소() {
+        Challenge challenge = new Challenge();
+        challengeService.saveChallenge(challenge);
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        CandyHistory candyHistory = candyHistoryService.cancelCandy(user.getId(), challenge.getId());
+        assertEquals(candyHistory.getStudentCandy(), 0);
+        assertEquals(candyHistory.getParentCandy(), 80);
+        assertEquals(candyHistory.getTotalCandy(), 80);
+        assertEquals(candyHistory.getAssignCandy(), 0);
     }
 }

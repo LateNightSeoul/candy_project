@@ -2,6 +2,7 @@ package com.example.candy.controller.user;
 
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class UserControllerTest {
         email.put("email", "a@naver.com");
 
         ResultActions result = mockMvc.perform(
-                post("/user/exist")
+                post("/user/email/exist")
                     .accept(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(email))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -60,7 +61,7 @@ class UserControllerTest {
         userRepository.save(user);
 
         ResultActions result2 = mockMvc.perform(
-                post("/user/exist")
+                post("/user/email/exist")
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(email))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,5 +70,24 @@ class UserControllerTest {
         result2.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response", is(true)));
+    }
+
+    @Test
+    void 회원가입_이메일_실패() throws Exception {
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", "leehae8");
+        data.put("emailcheck", Boolean.valueOf(true));
+        data.put("password", "123456789");
+        data.put("parentPassword", "123456789");
+        data.put("name", "이해석");
+        data.put("phone", "010-5612-2134");
+        data.put("birth", "1995-03-02");
+        ResultActions resultActions = mockMvc.perform(
+                post("/user/join")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        resultActions.andDo(print());
     }
 }

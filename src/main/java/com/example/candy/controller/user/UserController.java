@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/exist")
+    @PostMapping("/email/exist")
     public ApiResult<Boolean> checkEmail(@RequestBody Map<String, String> request) {
         return ApiResult.OK(userService.findByEmail(request.get("email")).isPresent());
     }
@@ -31,7 +31,7 @@ public class UserController {
     @PostMapping("/join")
     public ApiResult<JoinResponseDto> join(@RequestBody JoinRequestDto joinRequestDto) {
         User user = userService.join(
-                joinRequestDto.getEmail(), joinRequestDto.getPassword(),
+                joinRequestDto.getEmail(), joinRequestDto.isEmailCheck(), joinRequestDto.getPassword(),
                 joinRequestDto.getParentPassword(), joinRequestDto.getName(),
                 joinRequestDto.getPhone(), joinRequestDto.getBirth()
         );

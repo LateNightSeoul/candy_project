@@ -32,6 +32,7 @@ public class CandyHistory {
     private int totalCandy;
     private int parentCandy;
     private int studentCandy;
+    private int assignCandy;
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
@@ -40,11 +41,6 @@ public class CandyHistory {
 
     public void addUser(User user) {
         this.user = user;
-        System.out.println(this);
-        System.out.println(this.user.getCandyHistories());
-        System.out.println(user);
-        System.out.println(user.getEmail());
-
-        user.getCandyHistories().add(this);
+        user.addCandyHistory(this);
     }
 }
