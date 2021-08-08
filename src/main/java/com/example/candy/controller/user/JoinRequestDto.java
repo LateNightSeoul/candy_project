@@ -32,7 +32,7 @@ public class JoinRequestDto {
                 .append("email", email)
                 .append("emailCheck", emailCheck)
                 .append("password", password)
-                .append("password", parentPassword)
+                .append("parentPassword", parentPassword)
                 .append("name", name)
                 .append("phone", phone)
                 .append("birth", birth)
