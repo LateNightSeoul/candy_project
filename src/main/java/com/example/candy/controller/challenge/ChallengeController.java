@@ -119,8 +119,9 @@ public class ChallengeController {
         List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id);
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
+            //TODO
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
-                    challenge.getSubTitle(),true,challenge.getTotalScore(),challenge.getRequiredScore());
+                    challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore());
             challengeDtoList.add(challengeDto);
         }
         return ApiResult.OK(challengeDtoList);

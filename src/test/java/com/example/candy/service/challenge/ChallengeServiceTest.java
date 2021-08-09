@@ -1,5 +1,6 @@
 package com.example.candy.service.challenge;
 
+import com.example.candy.controller.challenge.ChallengeDto;
 import com.example.candy.domain.challenge.Challenge;
 
 import com.example.candy.domain.challenge.ChallengeLike;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,17 +135,17 @@ public class ChallengeServiceTest {
 
         //when
         Challenge savedChallenge = challengeService.registerChallenge(challenge);
-        User user = userService.join(email, true, password, parentPassword, name, phone, birth);
+//        User user = userService.join(email, true, password, parentPassword, name, phone, birth);
         ChallengeLike challengeLike = challengeLikeService.like(user.getId(), challenge.getId());
         Optional<ChallengeLike> findOne = challengeLikeService.findChallengeLike(user.getId(), savedChallenge.getId());
-
+        System.out.println("challengeLike id = " + challengeLike.getId());
         //then
         Assertions.assertEquals(challengeLike,findOne.get());
-
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTitle() = " + challengeDtoRepository.findChallenges(user.getId()).get(0).getTitle());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getSubTitle() = " + challengeDtoRepository.findChallenges(user.getId()).get(0).getSubTitle());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTotalScore() = " + challengeDtoRepository.findChallenges(user.getId()).get(0).getTotalScore());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).isLike() = " + challengeDtoRepository.findChallenges(user.getId()).get(0).isLikeDone());
+        List<ChallengeDto> challenges = challengeDtoRepository.findChallenges(user.getId());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTitle() = " + challenges.get(1).getTitle());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getSubTitle() = " + challenges.get(1).getSubTitle());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTotalScore() = " + challenges.get(1).getTotalScore());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).isLike() = " + challenges.get(1).isLikeDone());
 
 
     }

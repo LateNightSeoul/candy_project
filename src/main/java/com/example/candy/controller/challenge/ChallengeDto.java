@@ -10,16 +10,18 @@ public class ChallengeDto {
     private Category category;
     private String title;
     private String subTitle;
-    private boolean likeDone;
+    private boolean likeDone = false;
     private int totalScore;
     private int requiredScore;
 
-    public ChallengeDto(Long id, Category category, String title, String subTitle, boolean likeDone, int totalScore, int requiredScore) {
+    public ChallengeDto(Long id, Category category, String title, String subTitle, Object likeDone, int totalScore, int requiredScore) {
         this.id = id;
         this.category = category;
         this.title = title;
         this.subTitle = subTitle;
-        this.likeDone= likeDone;
+        if (likeDone != null) {
+            this.likeDone= true;
+        }
         this.totalScore = totalScore;
         this.requiredScore = requiredScore;
     }
