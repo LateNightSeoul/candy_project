@@ -1,12 +1,13 @@
 package com.example.candy.security;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class AuthenticationRequest {
-
+    @ApiModelProperty(value = "이메일")
     private String email;
-
+    @ApiModelProperty(value = "비밀번호")
     private String password;
 
     protected AuthenticationRequest() {}
