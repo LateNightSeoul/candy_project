@@ -96,8 +96,8 @@ public class ChallengeService {
     public int completeChallenge(Long challengeId, Long userId) {
         ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
-        if (challengeHistory.getAssignedCandy() < 0) {
-            throw new IllegalStateException("Assigned Candy is under 0");
+        if (challengeHistory.getAssignedCandy() <= 0) {
+            throw new IllegalStateException("Assigned Candy is below 0");
         }
         challengeHistory.setComplete(true);
         challengeHistory.setCompleteDate(LocalDateTime.now());
