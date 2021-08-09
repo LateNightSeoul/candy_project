@@ -104,6 +104,23 @@ public class ChallengeService {
         return challengeHistory.getAssignedCandy();
     }
 
+    //완료된 challengeHistory 찾기
+    public List<ChallengeHistory> completedChallengeList(Long userId, boolean complete) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        return challengeHistoryRepository.findAllByUserAndAndComplete(user, true);
+    }
+
+    //완료되지 않은 challengeHistory 찾기
+    public List<ChallengeHistory> notCompletedChallengeList(Long userId, boolean complete) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        return challengeHistoryRepository.findAllByUserAndAndComplete(user, false);
+    }
+
+
     public Optional<Challenge> findById(Long challengeId) {
         return challengeRepository.findById(challengeId);
     }
