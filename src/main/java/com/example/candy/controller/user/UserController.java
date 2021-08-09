@@ -7,6 +7,9 @@ import com.example.candy.security.Jwt;
 import com.example.candy.service.email.MailService;
 import com.example.candy.service.user.UserService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import javassist.NotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +21,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@Api(tags = {"챌린지"})
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private Jwt jwt;
-
-    @Autowired
-    private UserService userService;
+    @Autowired private Jwt jwt;
+    @Autowired private UserService userService;
 
     @PostMapping("/email/exist")
-    public ApiResult<Boolean> checkEmail(@RequestBody Map<String, String> request) {
+    @ApiOperation(value = "이메일 중복 확인 (중복일 시 true, 중복이 아닐 시 false 반환")
+    public ApiResult<Boolean> checkEmail(@RequestBody @ApiParam Map<String, String> request) {
         return ApiResult.OK(userService.findByEmail(request.get("email")).isPresent());
     }
 
     @PostMapping("/join")
-    public ApiResult<JoinResponseDto> join(@RequestBody JoinRequestDto joinRequestDto) {
+    @ApiOperation(value = "회원가입")
+    public ApiResult<JoinResponseDto> join(@RequestBody @ApiParam JoinRequestDto joinRequestDto) {
         User user = userService.join(
                 joinRequestDto.getEmail(), joinRequestDto.isEmailCheck(), joinRequestDto.getPassword(),
                 joinRequestDto.getParentPassword(), joinRequestDto.getName(),

@@ -1,5 +1,6 @@
 package com.example.candy.controller.user;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -9,19 +10,19 @@ import javax.validation.constraints.Email;
 @Getter
 public class JoinRequestDto {
 
-    @Email
+    @Email @ApiModelProperty
     private String email;
-
+    @ApiModelProperty
     private boolean emailCheck;
-
+    @ApiModelProperty
     private String password;
-
+    @ApiModelProperty
     private String parentPassword;
-
+    @ApiModelProperty
     private String name;
-
+    @ApiModelProperty
     private String phone;
-
+    @ApiModelProperty
     private String birth;
 
     public JoinRequestDto() {}
