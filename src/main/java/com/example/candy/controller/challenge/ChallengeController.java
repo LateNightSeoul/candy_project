@@ -2,10 +2,12 @@ package com.example.candy.controller.challenge;
 
 import com.example.candy.controller.ApiResult;
 import com.example.candy.domain.challenge.Challenge;
+import com.example.candy.domain.challenge.ChallengeHistory;
 import com.example.candy.domain.challenge.ChallengeLike;
 import com.example.candy.domain.choice.Choice;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
+import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
@@ -27,6 +29,8 @@ public class ChallengeController {
     private ChallengeService challengeService;
     @Autowired
     private ChallengeLikeService challengeLikeService;
+    @Autowired
+    private ChallengeDtoRepository challengeDtoRepository;
 
     @PostMapping("/register")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody ChallengeRegisterRequestDto challengeRegisterRequestDto) {
@@ -85,23 +89,17 @@ public class ChallengeController {
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
     }
 
-
-    /*
+    // 모든 challenge 볼때
     @GetMapping("/all")
     public ApiResult<List<ChallengeDto>> challenges(@AuthenticationPrincipal JwtAuthentication authentication) {
-        List<ChallengeDto> challengeDtoList = new ArrayList<>();
-        List<Challenge> challengeList = challengeService.findAllChallenges();
-        List<ChallengeLike> challengeLikes = challengeLikeService.findChallengeLikes(authentication.id);
-        for (ChallengeLike challengeLike : challengeLikes) {
-            challengeLike.getChallenge().getId();
 
-        }
-
+        List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id);
+        return ApiResult.OK(challengeDtoList);
     }
 
-     */
 
 
+    // 좋아요 누를 때
     @PostMapping("{challengeId}/like")
     public ApiResult<Long> like(
             @AuthenticationPrincipal JwtAuthentication authentication,
@@ -111,6 +109,7 @@ public class ChallengeController {
         return ApiResult.OK(saved.getId());
     }
 
+    // 좋아요 누른 challenge들 볼때
     @GetMapping("likeList")
     public ApiResult<List<ChallengeDto>> likeList(
             @AuthenticationPrincipal JwtAuthentication authentication
@@ -126,4 +125,45 @@ public class ChallengeController {
         }
         return ApiResult.OK(challengeDtoList);
     }
+
+    // 완료된 challenge들 반환
+    @GetMapping("completedList")
+    public ApiResult<List<MyChallengeDto>> completedList(
+            @AuthenticationPrincipal JwtAuthentication authentication
+    ) {
+        List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
+        List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(authentication.id, true);
+
+        for (ChallengeHistory challengeHistory : challengeHistoryList) {
+            Challenge challenge = challengeHistory.getChallenge();
+            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
+                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
+                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
+            myChallengeDtoList.add(myChallengeDto);
+        }
+
+        return ApiResult.OK(myChallengeDtoList);
+
+    }
+
+    // 완료되지 않은 challenge를 반환
+    @GetMapping("notCompletedList")
+    public ApiResult<List<MyChallengeDto>> notCompletedList(
+            @AuthenticationPrincipal JwtAuthentication authentication
+    ) {
+        List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
+        List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(authentication.id, false);
+
+        for (ChallengeHistory challengeHistory : challengeHistoryList) {
+            Challenge challenge = challengeHistory.getChallenge();
+            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
+                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
+                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy(), challengeHistory.isComplete());
+            myChallengeDtoList.add(myChallengeDto);
+        }
+
+        return ApiResult.OK(myChallengeDtoList);
+
+    }
+
 }
