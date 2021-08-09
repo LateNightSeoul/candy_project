@@ -13,6 +13,17 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
     cache-duration: PT1H
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 
+    password: 
+    properties:
+      mail:
+        smtp: 
+          auth: true
+          starttls:
+             enable: true
 
   h2:
     console:

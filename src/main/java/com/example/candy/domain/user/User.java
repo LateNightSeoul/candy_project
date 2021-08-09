@@ -39,7 +39,9 @@ public class User {
     private String parentPassword;
     private String phone;
     private String birth;
+    private String authCode;
     private boolean enabled;
+    private boolean auth;
     private int loginCount;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createDate;

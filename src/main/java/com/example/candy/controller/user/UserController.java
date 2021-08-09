@@ -4,6 +4,7 @@ import com.example.candy.controller.ApiResult;
 import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;
 import com.example.candy.security.Jwt;
+import com.example.candy.service.email.MailService;
 import com.example.candy.service.user.UserService;
 
 import javassist.NotFoundException;
@@ -47,5 +48,25 @@ public class UserController {
     @PostMapping("/find_email")
     public ApiResult<String> findEmail(@RequestBody Map<String, String> request) throws NotFoundException {
     	return ApiResult.OK(userService.find_email(request.get("name")));
+    }
+    
+    @PostMapping("/email")
+    public ApiResult<Boolean> sendEmail(@RequestBody Map<String, String> request) throws NotFoundException {
+    	return ApiResult.OK(userService.email(request.get("email")));
+    }
+    
+//    @PostMapping("/matches")
+//    public ApiResult<Boolean> test_Password(@RequestBody Map<String, String> request) throws NotFoundException {
+//    	return ApiResult.OK(userService.password_matches(request.get("email"), request.get("password")));
+//    }
+    
+    @PostMapping("/email/validate")
+    public ApiResult<Boolean> validate(@RequestBody Map<String, String> request) throws NotFoundException {
+    	return ApiResult.OK(userService.validate(request.get("email"), request.get("auth")));
+    }
+    
+    @PostMapping("/new_pw")
+    public ApiResult<Boolean> findPassword(@RequestBody Map<String, String> request) throws NotFoundException {
+    	return ApiResult.OK(userService.new_pw(request.get("email"), request.get("password")));
     }
 }

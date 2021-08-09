@@ -3,8 +3,11 @@ package com.example.candy.service.user;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.candyHistory.CandyHistoryService;
+import com.example.candy.service.email.MailService;
+
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ public class UserService {
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private CandyHistoryService candyHistoryService;
+    @Autowired private MailService mailService;
 
     @Transactional
     public User join(String email, boolean emailCheck, String password, String parentPassword, String name, String phone, String birth) {
@@ -72,12 +76,62 @@ public class UserService {
     	return new StringBuilder(user.getEmail()).toString();
     }
     
+    @Transactional
+    public Boolean email(String email) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	mailService.mailSend(user);
+    	
+    	return true;
+    }
+    
+    @Transactional
+    public Boolean validate(String email, String auth) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	if(user.getAuthCode().equals(auth)) {
+    		user.setAuth(true);
+    		return true;
+    	} else {
+    		user.setAuth(false);
+    		return false;
+    	}
+    }
+    
+    @Transactional
+    public Boolean new_pw(String email, String password) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	if(user.isAuth() == true) {
+    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+//    
 //    @Transactional
-//    public String find_pw(String email, String phone) throws NotFoundException {
+//    public Boolean password_matches(String email, String password) throws NotFoundException {
+// 
 //    	User user = findByEmail(email)
 //    			.orElseThrow(() -> new NotFoundException("User Not Found"));
 //    	
 //    	
+//    	if(new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+////    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+//    		return true;
+//    	} else {
+//    		return false;
+//    	}
 //    }
 
     @Transactional(readOnly = true)
