@@ -1,5 +1,6 @@
 package com.example.candy.repository.challenge;
 
+import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
 import com.example.candy.controller.challenge.ChallengeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -7,14 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class ChallengeDtoRepository {
 
     private final EntityManager em;
-
-
 
     @Transactional
     public List<ChallengeDto> findChallenges(Long userId) {
@@ -28,5 +28,26 @@ public class ChallengeDtoRepository {
                         " and cl.user.id = :userId", ChallengeDto.class)
                 .setParameter("userId", userId)
                 .getResultList();
+    }
+
+    @Transactional
+    public Optional<ChallengeDetailResponseDto> findChallengeDetail(Long userId, Long challengeId) {
+        ChallengeDetailResponseDto challengeDetailResponseDto = em.createQuery(
+                "select new " +
+                        "com.example.candy.controller.challenge.ChallengeDetailResponseDto(" +
+                        "c.title, c.subTitle, ch.assignedCandy, cl.id, c.category, c.description," +
+                        "c.totalScore, c.requiredScore, c.level, c.problemCount" +
+                        ")" +
+                        "from Challenge c" +
+                        " left join ChallengeLike cl on c.id = cl.challenge.id" +
+                        " and cl.user.id = :userId" +
+                        " left join ChallengeHistory ch on c.id = ch.challenge.id" +
+                        " and ch.user.id = :userId" +
+                        " where c.id = :challengeId", ChallengeDetailResponseDto.class)
+                .setParameter("userId", userId)
+                .setParameter("userId", userId)
+                .setParameter("challengeId", challengeId)
+                .getSingleResult();
+        return Optional.ofNullable(challengeDetailResponseDto);
     }
 }
