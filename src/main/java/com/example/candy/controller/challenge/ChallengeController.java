@@ -14,6 +14,9 @@ import com.example.candy.service.challenge.ChallengeService;
 import com.example.candy.service.choice.ChoiceService;
 import com.example.candy.service.lecture.LectureService;
 import com.example.candy.service.problem.ProblemService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 @RestController
 @RequestMapping("/challenge")
+@Api(tags = {"챌린지"})
 public class ChallengeController {
 
     @Autowired
@@ -176,8 +180,9 @@ public class ChallengeController {
     }
 
     @GetMapping("/{challengeId}/detail")
+    @ApiOperation(value = "챌린지 소개 화면 조회")
     public ApiResult<ChallengeDetailResponseDto> challengeDetail(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                                 @PathVariable Long challengeId) {
+                                                                 @PathVariable @ApiParam Long challengeId) {
         ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(authentication.id, challengeId);
         return ApiResult.OK(challengeDetail);
     }
