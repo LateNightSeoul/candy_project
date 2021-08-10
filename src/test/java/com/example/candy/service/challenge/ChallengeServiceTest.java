@@ -181,11 +181,11 @@ public class ChallengeServiceTest {
     @Order(6)
     @Transactional
     void 챌린지_디테일_조회() {
-        ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(challenge.getId(), user.getId());
+        ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(user.getId(), challenge.getId());
         assertEquals(challengeDetail.getAssignedCandy(), 0);
         assertEquals(challengeDetail.getTitle(), "영어");
     }
-    
+
     void 완료한_챌린지_목록() {
         challengeService.assignCandyInChallengeHistory(challenge.getId(), 30, user);
         challengeService.completeChallenge(challenge.getId(), user.getId());
