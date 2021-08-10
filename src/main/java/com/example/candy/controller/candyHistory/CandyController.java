@@ -68,7 +68,7 @@ public class CandyController {
     }
 
     @PostMapping("/attain")
-    @ApiOperation(value = "캔디 획득 (챌린지 성공 후 챌린지에 배정된 캔디 -> 학생 캔디로 획득)")
+    @ApiOperation(value = "캔디 획득 (챌린지 성공 후 챌린지에 배정된 캔디 -> 학생 캔디로 획득), 챌린지 성공 처리도 같이 함")
     public ApiResult attainCandy(@AuthenticationPrincipal JwtAuthentication authentication,
                                  @RequestBody @ApiParam CandyAttainRequestDto candyAttainRequestDto) {
         candyHistoryService.attainCandy(authentication.id, candyAttainRequestDto.getChallengeId());
