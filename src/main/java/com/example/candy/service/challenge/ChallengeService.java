@@ -94,6 +94,7 @@ public class ChallengeService {
         }
         int candyAmount = findChallengeHistory.getAssignedCandy();
         findChallengeHistory.setAssignedCandy(0);
+        saveChallengeHistory(findChallengeHistory);
         return candyAmount;
     }
 
