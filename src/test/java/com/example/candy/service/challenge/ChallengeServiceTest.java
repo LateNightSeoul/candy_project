@@ -123,6 +123,7 @@ public class ChallengeServiceTest {
     }
 
     @Test
+    @Order(3)
     @Transactional
     public void 챌린지_좋아요() {
         //given
@@ -150,7 +151,7 @@ public class ChallengeServiceTest {
 
     }
 
-    @Order(3)
+    @Order(4)
     @Transactional
     void 챌린지_히스토리_캔디_배정_및_실패_2() {
         Challenge saveChallenge = challengeService.registerChallenge(challenge);
@@ -161,6 +162,19 @@ public class ChallengeServiceTest {
         assertThrows(IllegalStateException.class, () -> {
             challengeService.assignCandyInChallengeHistory(saveChallenge.getId(), 30, user);
         });
+    }
+
+    @Test
+    @Order(5)
+    @Transactional
+    void 챌린지_완료() {
+
+        //todo
+        ChallengeHistory challengeHistory = challengeService.assignCandyInChallengeHistory(challenge.getId(), 30, user);
+        challengeService.completeChallenge(challenge.getId(), user.getId());
+        assertEquals(challengeHistory.getChallenge().getId(),challenge.getId());
+        assertEquals(challengeHistory.isComplete(),true);
+
     }
 
 }
