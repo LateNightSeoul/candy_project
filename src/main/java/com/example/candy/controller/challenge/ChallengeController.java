@@ -113,16 +113,6 @@ public class ChallengeController {
         return ApiResult.OK(saved.getId());
     }
 
-    // 챌린지 완료 했을 때
-    @PostMapping("{challengeId}/complete")
-    public ApiResult<Integer> complete(
-            @AuthenticationPrincipal JwtAuthentication authentication,
-            @PathVariable Long challengeId
-    ) {
-        int candy = challengeService.completeChallenge(challengeId, authentication.id);
-        return ApiResult.OK(candy);
-    }
-
     // 좋아요 누른 challenge들 볼때
     @GetMapping("likeList")
     public ApiResult<List<ChallengeDto>> likeList(
