@@ -1,5 +1,6 @@
 package com.example.candy.service.challenge;
 
+import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
 import com.example.candy.domain.challenge.ChallengeLike;
@@ -8,6 +9,7 @@ import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
+import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeLikeRepository;
 import com.example.candy.repository.challenge.ChallengeRepository;
@@ -26,12 +28,14 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeLikeRepository challengeLikeRepository;
     private final ChallengeHistoryRepository challengeHistoryRepository;
+    private final ChallengeDtoRepository challengeDtoRepository;
 
-    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository) {
+    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository) {
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.challengeLikeRepository = challengeLikeRepository;
         this.challengeHistoryRepository = challengeHistoryRepository;
+        this.challengeDtoRepository = challengeDtoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -120,6 +124,10 @@ public class ChallengeService {
         return challengeHistoryRepository.findAllByUserAndAndComplete(user, false);
     }
 
+    public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {
+        return challengeDtoRepository.findChallengeDetail(userId, challengeId)
+                .orElseThrow(() -> new NotFoundException("No Such Challenge"));
+    }
 
     public Optional<Challenge> findById(Long challengeId) {
         return challengeRepository.findById(challengeId);
