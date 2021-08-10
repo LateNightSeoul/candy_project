@@ -1,5 +1,6 @@
 package com.example.candy.service.challenge;
 
+import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
 import com.example.candy.controller.challenge.ChallengeDto;
 import com.example.candy.domain.challenge.Challenge;
 
@@ -175,6 +176,15 @@ public class ChallengeServiceTest {
         assertEquals(challengeHistory.getChallenge().getId(),challenge.getId());
         assertEquals(challengeHistory.isComplete(),true);
 
+    }
+
+    @Test
+    @Order(6)
+    @Transactional
+    void 챌린지_디테일_조회() {
+        ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(challenge.getId(), user.getId());
+        assertEquals(challengeDetail.getAssignedCandy(), 0);
+        assertEquals(challengeDetail.getTitle(), "영어");
     }
 
 }
