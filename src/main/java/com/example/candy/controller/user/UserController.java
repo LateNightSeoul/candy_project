@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@Api(tags = {"챌린지"})
+@Api(tags = {"유저"})
 @RequestMapping("/user")
 public class UserController {
 
