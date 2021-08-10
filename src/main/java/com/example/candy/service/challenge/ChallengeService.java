@@ -105,6 +105,9 @@ public class ChallengeService {
         }
         challengeHistory.setComplete(true);
         challengeHistory.setCompleteDate(LocalDateTime.now());
+        challengeHistory.setAssignedCandy(0);
+        challengeHistory.setModifiedDate(LocalDateTime.now());
+        saveChallengeHistory(challengeHistory);
         return challengeHistory.getAssignedCandy();
     }
 
