@@ -175,5 +175,11 @@ public class ChallengeController {
         return ApiResult.OK(myChallengeDtoList);
     }
 
+    @GetMapping("/{challengeId}/detail")
+    public ApiResult<ChallengeDetailResponseDto> challengeDetail(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                                 @PathVariable Long challengeId) {
+        ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(authentication.id, challengeId);
+        return ApiResult.OK(challengeDetail);
+    }
 
 }
