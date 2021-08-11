@@ -54,7 +54,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                     .antMatchers("/user/join").permitAll()
                     .antMatchers("/auth/authenticate").permitAll()
                     .antMatchers("/user/email/exist").permitAll()
-                    .antMatchers("/challenge/register").permitAll()
+                    .antMatchers("/challenge/**").permitAll()
 //                    .anyRequest().hasRole(Authority.STUDENT.value())
                     //.anyRequest().authenticated()
                 .anyRequest().permitAll()
