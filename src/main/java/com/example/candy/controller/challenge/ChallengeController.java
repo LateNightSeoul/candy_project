@@ -11,9 +11,6 @@ import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
-import com.example.candy.service.choice.ChoiceService;
-import com.example.candy.service.lecture.LectureService;
-import com.example.candy.service.problem.ProblemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -37,7 +34,8 @@ public class ChallengeController {
     private ChallengeDtoRepository challengeDtoRepository;
 
     @PostMapping("/register")
-    public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody ChallengeRegisterRequestDto challengeRegisterRequestDto) {
+    @ApiOperation(value = "챌린지 등록")
+    public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
 
         Challenge challenge = Challenge.builder()
                 .title(challengeRegisterRequestDto.getTitle())
@@ -93,28 +91,26 @@ public class ChallengeController {
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
     }
 
-    // 모든 challenge 볼때
     @GetMapping("/all")
+    @ApiOperation(value = "모든 챌린지 확인, 좋아요를 했는지 안했는지도 확인")
     public ApiResult<List<ChallengeDto>> challenges(@AuthenticationPrincipal JwtAuthentication authentication) {
 
         List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id);
         return ApiResult.OK(challengeDtoList);
     }
 
-
-
-    // 좋아요 누를 때
     @PostMapping("{challengeId}/like")
+    @ApiOperation(value = "좋아요 기능")
     public ApiResult<Long> like(
             @AuthenticationPrincipal JwtAuthentication authentication,
-            @PathVariable Long challengeId
+            @PathVariable @ApiParam Long challengeId
     ) {
         ChallengeLike saved = challengeLikeService.like(authentication.id, challengeId);
         return ApiResult.OK(saved.getId());
     }
 
-    // 좋아요 누른 challenge들 볼때
     @GetMapping("likeList")
+    @ApiOperation(value = "좋아요 누른 challengeList 불러오기")
     public ApiResult<List<ChallengeDto>> likeList(
             @AuthenticationPrincipal JwtAuthentication authentication
     ) {
@@ -122,7 +118,6 @@ public class ChallengeController {
         List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id);
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
-            //TODO
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
                     challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore());
             challengeDtoList.add(challengeDto);
@@ -130,8 +125,8 @@ public class ChallengeController {
         return ApiResult.OK(challengeDtoList);
     }
 
-    // 완료된 challenge들 반환
     @GetMapping("completedList")
+    @ApiOperation(value = "완료된 챌린지 리스트 반환")
     public ApiResult<List<MyChallengeDto>> completedList(
             @AuthenticationPrincipal JwtAuthentication authentication
     ) {
@@ -150,8 +145,8 @@ public class ChallengeController {
 
     }
 
-    // 완료되지 않은 challenge를 반환
     @GetMapping("notCompletedList")
+    @ApiOperation(value = "완료하지 않은 챌린지 리스트 반환")
     public ApiResult<List<MyChallengeDto>> notCompletedList(
             @AuthenticationPrincipal JwtAuthentication authentication
     ) {
