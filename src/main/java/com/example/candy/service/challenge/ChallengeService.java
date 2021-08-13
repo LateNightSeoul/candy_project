@@ -1,11 +1,17 @@
 package com.example.candy.service.challenge;
 
+import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
+import com.example.candy.domain.challenge.ChallengeLike;
+import com.example.candy.domain.lecture.Lecture;
+import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
+import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
+import com.example.candy.repository.challenge.ChallengeLikeRepository;
 import com.example.candy.repository.challenge.ChallengeRepository;
 import com.example.candy.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,19 +26,26 @@ import java.util.Optional;
 public class ChallengeService {
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
+    private final ChallengeLikeRepository challengeLikeRepository;
     private final ChallengeHistoryRepository challengeHistoryRepository;
+    private final ChallengeDtoRepository challengeDtoRepository;
 
-    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeHistoryRepository challengeHistoryRepository) {
+    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository) {
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
+        this.challengeLikeRepository = challengeLikeRepository;
         this.challengeHistoryRepository = challengeHistoryRepository;
+        this.challengeDtoRepository = challengeDtoRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<Challenge> findAllChallenges() {
+        return challengeRepository.findAll();
+    }
 
     // 필요한 것. user id
     @Transactional(readOnly = true)
     public List<ChallengeHistory> findChallengeHistories(Long userId) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
 
@@ -81,18 +94,43 @@ public class ChallengeService {
         }
         int candyAmount = findChallengeHistory.getAssignedCandy();
         findChallengeHistory.setAssignedCandy(0);
+        saveChallengeHistory(findChallengeHistory);
         return candyAmount;
     }
 
     public int completeChallenge(Long challengeId, Long userId) {
         ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
-        if (challengeHistory.getAssignedCandy() < 0) {
-            throw new IllegalStateException("Assigned Candy is under 0");
+        if (challengeHistory.getAssignedCandy() <= 0) {
+            throw new IllegalStateException("Assigned Candy is below 0");
         }
         challengeHistory.setComplete(true);
         challengeHistory.setCompleteDate(LocalDateTime.now());
+        challengeHistory.setAssignedCandy(0);
+        challengeHistory.setModifiedDate(LocalDateTime.now());
+        saveChallengeHistory(challengeHistory);
         return challengeHistory.getAssignedCandy();
+    }
+
+    //완료된 challengeHistory 찾기
+    public List<ChallengeHistory> completedChallengeList(Long userId, boolean complete) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        return challengeHistoryRepository.findAllByUserAndAndComplete(user, true);
+    }
+
+    //완료되지 않은 challengeHistory 찾기
+    public List<ChallengeHistory> notCompletedChallengeList(Long userId, boolean complete) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        return challengeHistoryRepository.findAllByUserAndAndComplete(user, false);
+    }
+
+    public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {
+        return challengeDtoRepository.findChallengeDetail(userId, challengeId)
+                .orElseThrow(() -> new NotFoundException("No Such Challenge"));
     }
 
     public Optional<Challenge> findById(Long challengeId) {

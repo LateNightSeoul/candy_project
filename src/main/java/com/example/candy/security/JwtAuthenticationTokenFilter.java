@@ -50,8 +50,6 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             String authorizationToken = obtainAuthorizationToken(request);
-            System.out.println("**************************");
-            System.out.println(authorizationToken);
             if (authorizationToken != null) {
                 try {
                     Jwt.Claims claims = verify(authorizationToken);

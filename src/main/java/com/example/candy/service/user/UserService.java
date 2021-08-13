@@ -3,8 +3,11 @@ package com.example.candy.service.user;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.candyHistory.CandyHistoryService;
+import com.example.candy.service.email.MailService;
+
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ public class UserService {
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private CandyHistoryService candyHistoryService;
+    @Autowired private MailService mailService;
 
     @Transactional
     public User join(String email, boolean emailCheck, String password, String parentPassword, String name, String phone, String birth) {
@@ -61,12 +65,87 @@ public class UserService {
         user.afterLoginSuccess();
         return user;
     }
+    
+    @Transactional
+    public String find_email(String name) throws NotFoundException {
+    	checkArgument(name != null, "name must be provided.");
+    	
+    	User user = findByName(name)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	return new StringBuilder(user.getEmail()).toString();
+    }
+    
+    @Transactional
+    public Boolean email(String email) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	mailService.mailSend(user);
+    	
+    	return true;
+    }
+    
+    @Transactional
+    public Boolean validate(String email, String auth) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	if(user.getAuthCode().equals(auth)) {
+    		user.setAuth(true);
+    		return true;
+    	} else {
+    		user.setAuth(false);
+    		return false;
+    	}
+    }
+    
+    @Transactional
+    public Boolean new_pw(String email, String password) throws NotFoundException {
+ 
+    	User user = findByEmail(email)
+    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+    	
+    	
+    	if(user.isAuth() == true) {
+    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+//    
+//    @Transactional
+//    public Boolean password_matches(String email, String password) throws NotFoundException {
+// 
+//    	User user = findByEmail(email)
+//    			.orElseThrow(() -> new NotFoundException("User Not Found"));
+//    	
+//    	
+//    	if(new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+////    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+//    		return true;
+//    	} else {
+//    		return false;
+//    	}
+//    }
 
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         checkArgument(email != null, "email must be provided.");
 
         return userRepository.findByEmail(email);
+    }
+    
+    @Transactional(readOnly = true)
+    public Optional<User> findByName(String name) {
+    	checkArgument(name != null, "name must be provided.");
+    	
+    	return userRepository.findByName(name);
     }
 
     public Optional<User> findById(Long userId) {
