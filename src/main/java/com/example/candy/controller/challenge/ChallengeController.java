@@ -1,6 +1,7 @@
 package com.example.candy.controller.challenge;
 
 import com.example.candy.controller.ApiResult;
+import com.example.candy.controller.challenge.dto.*;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
 import com.example.candy.domain.challenge.ChallengeLike;

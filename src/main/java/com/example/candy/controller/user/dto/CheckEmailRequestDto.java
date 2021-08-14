@@ -1,4 +1,4 @@
-package com.example.candy.controller.user;
+package com.example.candy.controller.user.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.example.candy.controller.challenge;
+package com.example.candy.controller.challenge.dto;
 
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.lecture.Lecture;

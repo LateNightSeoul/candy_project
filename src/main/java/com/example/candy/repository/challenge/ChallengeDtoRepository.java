@@ -1,7 +1,7 @@
 package com.example.candy.repository.challenge;
 
-import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
-import com.example.candy.controller.challenge.ChallengeDto;
+import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
+import com.example.candy.controller.challenge.dto.ChallengeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

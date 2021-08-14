@@ -1,15 +1,14 @@
 package com.example.candy.controller.user;
 
 import com.example.candy.controller.ApiResult;
+import com.example.candy.controller.user.dto.*;
 import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;
 import com.example.candy.security.Jwt;
 import com.example.candy.security.JwtAuthentication;
-import com.example.candy.service.email.MailService;
 import com.example.candy.service.user.UserService;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import javassist.NotFoundException;
@@ -17,8 +16,6 @@ import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @Api(tags = {"유저"})

@@ -1,6 +1,6 @@
 package com.example.candy.service.user;
 
-import com.example.candy.controller.user.UserInfoResponseDto;
+import com.example.candy.controller.user.dto.UserInfoResponseDto;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.candyHistory.CandyHistoryService;

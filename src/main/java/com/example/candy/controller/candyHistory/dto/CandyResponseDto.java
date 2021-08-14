@@ -1,4 +1,4 @@
-package com.example.candy.controller.candyHistory;
+package com.example.candy.controller.candyHistory.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

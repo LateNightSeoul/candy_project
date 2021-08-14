@@ -1,4 +1,4 @@
-package com.example.candy.controller.user;
+package com.example.candy.controller.user.dto;
 
 import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;

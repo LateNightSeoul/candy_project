@@ -1,4 +1,4 @@
-package com.example.candy.controller.user;
+package com.example.candy.controller.user.dto;
 
 import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;

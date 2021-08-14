@@ -1,15 +1,10 @@
-package com.example.candy.controller.challenge;
+package com.example.candy.controller.challenge.dto;
 
-import com.example.candy.domain.challenge.Challenge;
-import com.example.candy.domain.choice.Choice;
-import com.example.candy.domain.problem.Problem;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter

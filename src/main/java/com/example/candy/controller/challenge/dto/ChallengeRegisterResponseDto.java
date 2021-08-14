@@ -1,10 +1,8 @@
-package com.example.candy.controller.challenge;
+package com.example.candy.controller.challenge.dto;
 
-import com.example.candy.controller.user.UserDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.enums.Category;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 

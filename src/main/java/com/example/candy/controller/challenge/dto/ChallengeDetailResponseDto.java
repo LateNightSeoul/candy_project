@@ -1,4 +1,4 @@
-package com.example.candy.controller.challenge;
+package com.example.candy.controller.challenge.dto;
 
 import com.example.candy.enums.Category;
 import lombok.Getter;

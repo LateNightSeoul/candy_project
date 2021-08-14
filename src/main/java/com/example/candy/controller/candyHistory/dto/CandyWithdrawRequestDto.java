@@ -1,4 +1,4 @@
-package com.example.candy.controller.candyHistory;
+package com.example.candy.controller.candyHistory.dto;
 
 import com.example.candy.domain.candy.EventType;
 import io.swagger.annotations.ApiModelProperty;

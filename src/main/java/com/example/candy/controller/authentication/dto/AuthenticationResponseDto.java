@@ -1,6 +1,6 @@
-package com.example.candy.controller.authentication;
+package com.example.candy.controller.authentication.dto;
 
-import com.example.candy.controller.user.UserDto;
+import com.example.candy.controller.user.dto.UserDto;
 import com.example.candy.security.AuthenticationResult;
 import lombok.Getter;
 import lombok.Setter;
