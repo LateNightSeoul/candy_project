@@ -30,8 +30,8 @@ public class UserController {
 
     @PostMapping("/email/exist")
     @ApiOperation(value = "이메일 중복 확인 (중복일 시 true, 중복이 아닐 시 false 반환)")
-    public ApiResult<Boolean> checkEmail(@RequestBody @ApiParam Map<String, String> request) {
-        return ApiResult.OK(userService.findByEmail(request.get("email")).isPresent());
+    public ApiResult<Boolean> checkEmail(@RequestBody @ApiParam CheckEmailRequestDto checkEmailRequestDto) {
+        return ApiResult.OK(userService.findByEmail(checkEmailRequestDto.getEmail()).isPresent());
     }
 
     @PostMapping("/join")
