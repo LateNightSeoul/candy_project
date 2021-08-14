@@ -4,6 +4,7 @@ import com.example.candy.controller.ApiResult;
 import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;
 import com.example.candy.security.Jwt;
+import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.email.MailService;
 import com.example.candy.service.user.UserService;
 
@@ -13,10 +14,8 @@ import io.swagger.annotations.ApiParam;
 import javassist.NotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -75,5 +74,10 @@ public class UserController {
     @ApiOperation(value = "새로운 비밀번호 설정 (인증했을 시 true, 인증하지 않았을 시 false 반환)")
     public ApiResult<Boolean> findPassword(@RequestBody Map<String, String> request) throws NotFoundException {
     	return ApiResult.OK(userService.new_pw(request.get("email"), request.get("password")));
+    }
+
+    @GetMapping("/info")
+    public ApiResult<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal JwtAuthentication authentication) throws NotFoundException {
+        return ApiResult.OK(userService.getUserInfo(authentication.id));
     }
 }
