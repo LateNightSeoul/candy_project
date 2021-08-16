@@ -1,5 +1,7 @@
 package com.example.candy.service.user;
 
+import com.example.candy.controller.user.dto.ChangeUserInfoRequestDto;
+import com.example.candy.controller.user.dto.UserInfoResponseDto;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.candyHistory.CandyHistoryService;
@@ -117,6 +119,29 @@ public class UserService {
     	} else {
     		return false;
     	}
+    }
+
+    public UserInfoResponseDto getUserInfo(Long userId) throws NotFoundException {
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        return new UserInfoResponseDto(user.getEmail(), user.getName(), user.getPhone(), user.getBirth());
+    }
+    @Transactional
+    public UserInfoResponseDto changeUserInfo(Long userId, String name, String phone, String birth) throws NotFoundException {
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.setName(name);
+        user.setPhone(phone);
+        user.setBirth(birth);
+        User savedUser = save(user);
+        return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
+    }
+    @Transactional
+    public void changePassword(Long userId, String newPassword) throws NotFoundException {
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.setPassword(newPassword);
+        save(user);
     }
 //    
 //    @Transactional

@@ -1,6 +1,7 @@
 package com.example.candy.controller.authentication;
 
 import com.example.candy.controller.ApiResult;
+import com.example.candy.controller.authentication.dto.AuthenticationResponseDto;
 import com.example.candy.security.AuthenticationRequest;
 import com.example.candy.security.AuthenticationResult;
 import com.example.candy.security.JwtAuthenticationToken;

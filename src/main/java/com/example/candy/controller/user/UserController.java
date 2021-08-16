@@ -1,10 +1,11 @@
 package com.example.candy.controller.user;
 
 import com.example.candy.controller.ApiResult;
+import com.example.candy.controller.user.dto.*;
 import com.example.candy.domain.user.Authority;
 import com.example.candy.domain.user.User;
 import com.example.candy.security.Jwt;
-import com.example.candy.service.email.MailService;
+import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.user.UserService;
 
 import io.swagger.annotations.Api;
@@ -13,12 +14,8 @@ import io.swagger.annotations.ApiParam;
 import javassist.NotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api(tags = {"유저"})
@@ -30,8 +27,8 @@ public class UserController {
 
     @PostMapping("/email/exist")
     @ApiOperation(value = "이메일 중복 확인 (중복일 시 true, 중복이 아닐 시 false 반환)")
-    public ApiResult<Boolean> checkEmail(@RequestBody @ApiParam Map<String, String> request) {
-        return ApiResult.OK(userService.findByEmail(request.get("email")).isPresent());
+    public ApiResult<Boolean> checkEmail(@RequestBody @ApiParam CheckEmailRequestDto checkEmailRequestDto) {
+        return ApiResult.OK(userService.findByEmail(checkEmailRequestDto.getEmail()).isPresent());
     }
 
     @PostMapping("/join")
@@ -50,14 +47,14 @@ public class UserController {
     
     @PostMapping("/find_email")
     @ApiOperation(value = "이메일 찾기")
-    public ApiResult<String> findEmail(@RequestBody Map<String, String> request) throws NotFoundException {
-    	return ApiResult.OK(userService.find_email(request.get("name")));
+    public ApiResult<String> findEmail(@RequestBody @ApiParam FindEmailRequestDto findEmailRequestDto) throws NotFoundException {
+    	return ApiResult.OK(userService.find_email(findEmailRequestDto.getName()));
     }
     
     @PostMapping("/email")
-    @ApiOperation(value = "비밀번호 찾기를 위한 인증코드 이메일 전송 (항상 true 반환)")
-    public ApiResult<Boolean> sendEmail(@RequestBody Map<String, String> request) throws NotFoundException {
-    	return ApiResult.OK(userService.email(request.get("email")));
+    @ApiOperation(value = "비밀번호 찾기를 위한 인증코드 이메일 전송", notes = "항상 true 반환")
+    public ApiResult<Boolean> sendEmail(@RequestBody @ApiParam FindPasswordRequestDto findPasswordRequestDto) throws NotFoundException {
+    	return ApiResult.OK(userService.email(findPasswordRequestDto.getEmail()));
     }
     
 //    @PostMapping("/matches")
@@ -66,14 +63,33 @@ public class UserController {
 //    }
     
     @PostMapping("/email/validate")
-    @ApiOperation(value = "이메일 인증코드 확인 (인증코드 동일할 시 true, 동일하지 않을 시 false 반환)")
-    public ApiResult<Boolean> validate(@RequestBody Map<String, String> request) throws NotFoundException {
-    	return ApiResult.OK(userService.validate(request.get("email"), request.get("auth")));
+    @ApiOperation(value = "이메일 인증코드 확인", notes = "인증코드 동일할 시 true, 동일하지 않을 시 false 반환")
+    public ApiResult<Boolean> validate(@RequestBody @ApiParam ValidateEmailRequestDto validateEmailRequestDto) throws NotFoundException {
+    	return ApiResult.OK(userService.validate(validateEmailRequestDto.getEmail(), validateEmailRequestDto.getAuth()));
     }
     
     @PostMapping("/new_pw")
-    @ApiOperation(value = "새로운 비밀번호 설정 (인증했을 시 true, 인증하지 않았을 시 false 반환)")
-    public ApiResult<Boolean> findPassword(@RequestBody Map<String, String> request) throws NotFoundException {
-    	return ApiResult.OK(userService.new_pw(request.get("email"), request.get("password")));
+    @ApiOperation(value = "새로운 비밀번호 설정", notes = "이메일 인증했을 시 true, 인증하지 않았을 시 false 반환")
+    public ApiResult<Boolean> findPassword(@RequestBody @ApiParam NewPasswordRequestDto newPasswordRequestDto) throws NotFoundException {
+    	return ApiResult.OK(userService.new_pw(newPasswordRequestDto.getEmail(), newPasswordRequestDto.getPassword()));
+    }
+
+    @GetMapping("/info")
+    public ApiResult<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal JwtAuthentication authentication) throws NotFoundException {
+        return ApiResult.OK(userService.getUserInfo(authentication.id));
+    }
+
+    @PostMapping("/info/change")
+    public ApiResult<UserInfoResponseDto> changeUserInfo(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                         ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
+        return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
+                changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
+    }
+
+    @PostMapping("/password/change")
+    public ApiResult<Boolean> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
+                                             ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
+        userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword());
+        return ApiResult.OK(null);
     }
 }

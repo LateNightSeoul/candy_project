@@ -1,7 +1,7 @@
 package com.example.candy.service.challenge;
 
-import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
-import com.example.candy.controller.challenge.ChallengeDto;
+import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
+import com.example.candy.controller.challenge.dto.ChallengeDto;
 import com.example.candy.domain.challenge.Challenge;
 
 import com.example.candy.domain.challenge.ChallengeLike;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 
 import com.example.candy.repository.user.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 
 import org.junit.jupiter.api.Test;

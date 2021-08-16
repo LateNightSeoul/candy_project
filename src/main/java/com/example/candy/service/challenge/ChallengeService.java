@@ -1,11 +1,8 @@
 package com.example.candy.service.challenge;
 
-import com.example.candy.controller.challenge.ChallengeDetailResponseDto;
+import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
-import com.example.candy.domain.challenge.ChallengeLike;
-import com.example.candy.domain.lecture.Lecture;
-import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;

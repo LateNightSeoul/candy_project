@@ -1,6 +1,7 @@
 package com.example.candy.controller.candyHistory;
 
 import com.example.candy.controller.ApiResult;
+import com.example.candy.controller.candyHistory.dto.*;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.candyHistory.CandyHistoryService;
 import io.swagger.annotations.Api;
