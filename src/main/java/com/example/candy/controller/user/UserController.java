@@ -78,4 +78,11 @@ public class UserController {
     public ApiResult<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal JwtAuthentication authentication) throws NotFoundException {
         return ApiResult.OK(userService.getUserInfo(authentication.id));
     }
+
+    @PostMapping("/info/change")
+    public ApiResult<UserInfoResponseDto> changeUserInfo(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                         ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
+        return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
+                changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
+    }
 }

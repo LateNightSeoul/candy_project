@@ -1,5 +1,6 @@
 package com.example.candy.service.user;
 
+import com.example.candy.controller.user.dto.ChangeUserInfoRequestDto;
 import com.example.candy.controller.user.dto.UserInfoResponseDto;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
@@ -124,6 +125,16 @@ public class UserService {
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         return new UserInfoResponseDto(user.getEmail(), user.getName(), user.getPhone(), user.getBirth());
+    }
+
+    public UserInfoResponseDto changeUserInfo(Long userId, String name, String phone, String birth) throws NotFoundException {
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.setName(name);
+        user.setPhone(phone);
+        user.setBirth(birth);
+        User savedUser = save(user);
+        return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
     }
 //    
 //    @Transactional
