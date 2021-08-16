@@ -11,35 +11,35 @@ import java.util.List;
 @Getter
 public class ChallengeRegisterRequestDto {
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "제목", example = "5형식")
     private String title;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "부제목", example = "5형식 동사에 대한 이해")
     private String subTitle;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "과목명(KOREAN, ENGLISH, MATH)" ,example = "KOREAN")
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "설명", example = "5형식 전반에 대한 이해를 다루고 있습니다.")
     private String description;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "총점수", example = "100")
     private int totalScore;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "캔디를 받기위한 커트라인", example = "80")
     private int requiredScore;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "챌린지 난이도(예를 들어 범위 0~5)", example = "3")
     private int level;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "챌린지에 있는 문제의 개수", example = "3")
     private int problemCount;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "문제 등록")
     private List<ProblemDto> problemDtoList;
 
-    @ApiModelProperty
+    @ApiModelProperty(value = "강의 등록")
     private List<LectureDto> lectureDtoList;
 
 }
