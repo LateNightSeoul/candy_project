@@ -1,5 +1,6 @@
 package com.example.candy.controller.candyHistory.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Getter
 @RequiredArgsConstructor
 public class CandyResponseDto {
+    @ApiModelProperty(value = "요청 수행 뒤 student or parent의 캔디 보유 개수", example = "")
     private final int candyAmount;
 
     @Override
