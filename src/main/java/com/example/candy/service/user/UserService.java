@@ -126,7 +126,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         return new UserInfoResponseDto(user.getEmail(), user.getName(), user.getPhone(), user.getBirth());
     }
-
+    @Transactional
     public UserInfoResponseDto changeUserInfo(Long userId, String name, String phone, String birth) throws NotFoundException {
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
@@ -135,6 +135,13 @@ public class UserService {
         user.setBirth(birth);
         User savedUser = save(user);
         return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
+    }
+    @Transactional
+    public void changePassword(Long userId, String newPassword) throws NotFoundException {
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.setPassword(newPassword);
+        save(user);
     }
 //    
 //    @Transactional

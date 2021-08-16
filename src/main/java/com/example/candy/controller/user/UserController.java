@@ -85,4 +85,11 @@ public class UserController {
         return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
                 changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
     }
+
+    @PostMapping("/password/change")
+    public ApiResult<Boolean> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
+                                             ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
+        userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword());
+        return ApiResult.OK(null);
+    }
 }
