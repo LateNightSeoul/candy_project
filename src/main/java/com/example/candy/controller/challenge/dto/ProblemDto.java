@@ -34,7 +34,7 @@ public class ProblemDto {
     @ApiModelProperty(value = "보기가 몇개인지(Choice의 갯수) ex) 4지선다", example = "4")
     private int multipleCount;
 
-    @ApiModelProperty(value = "주관식 답", example = "apple")
+    @ApiModelProperty(value = "바뀐 날짜")
     private LocalDateTime modifiedDate;
 
 }
