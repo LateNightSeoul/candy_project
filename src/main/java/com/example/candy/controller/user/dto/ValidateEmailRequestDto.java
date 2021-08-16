@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class ValidateEmailRequestDto {
-    @ApiModelProperty
+	@ApiModelProperty(value = "이메일", example = "test@gmail.com")
     private String email;
-    @ApiModelProperty
+	@ApiModelProperty(value = "인증코드", example = "000000")
     private String auth;
 
     public ValidateEmailRequestDto(){}

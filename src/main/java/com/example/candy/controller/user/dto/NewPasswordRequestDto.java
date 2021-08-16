@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class NewPasswordRequestDto {
-    @ApiModelProperty
+	@ApiModelProperty(value = "이메일", example = "test@gmail.com")
     private String email;
-    @ApiModelProperty
+	@ApiModelProperty(value = "비밀번호", example = "test1234")
     private String password;
 
     public NewPasswordRequestDto(){}

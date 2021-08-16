@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class FindEmailRequestDto {
-    @ApiModelProperty
+    @ApiModelProperty(value = "사용자 이름", example = "김아무개")
     private String name;
 
     public FindEmailRequestDto(){}
