@@ -69,7 +69,7 @@ public class UserController {
     }
     
     @PostMapping("/new_pw")
-    @ApiOperation(value = "새로운 비밀번호 설정", notes = "인증했을 시 true, 인증하지 않았을 시 false 반환")
+    @ApiOperation(value = "새로운 비밀번호 설정", notes = "이메일 인증했을 시 true, 인증하지 않았을 시 false 반환")
     public ApiResult<Boolean> findPassword(@RequestBody @ApiParam NewPasswordRequestDto newPasswordRequestDto) throws NotFoundException {
     	return ApiResult.OK(userService.new_pw(newPasswordRequestDto.getEmail(), newPasswordRequestDto.getPassword()));
     }
