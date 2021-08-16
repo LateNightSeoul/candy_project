@@ -20,7 +20,7 @@ public class ChallengeDtoRepository {
     public List<ChallengeDto> findChallenges(Long userId) {
         return em.createQuery(
                 "select new " +
-                        "com.example.candy.controller.challenge.ChallengeDto(c.id,c.category,c.title,c.subTitle," +
+                        "com.example.candy.controller.challenge.dto.ChallengeDto(c.id,c.category,c.title,c.subTitle," +
                         "cl.id," +
                         "c.totalScore,c.requiredScore)" +
                         " from Challenge c" +
@@ -34,7 +34,7 @@ public class ChallengeDtoRepository {
     public Optional<ChallengeDetailResponseDto> findChallengeDetail(Long userId, Long challengeId) {
         ChallengeDetailResponseDto challengeDetailResponseDto = em.createQuery(
                 "select new " +
-                        "com.example.candy.controller.challenge.ChallengeDetailResponseDto(" +
+                        "com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto(" +
                         "c.title, c.subTitle, ch.assignedCandy, cl.id, c.category, c.description," +
                         "c.totalScore, c.requiredScore, c.level, c.problemCount" +
                         ")" +
