@@ -93,21 +93,10 @@ public class ChallengeController {
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
     }
-/*
-    @GetMapping("/all")
-    @ApiOperation(value = "모든 챌린지 확인, 좋아요를 했는지 안했는지도 확인")
-    public ApiResult<List<ChallengeDto>> challenges(@AuthenticationPrincipal JwtAuthentication authentication) {
 
-        List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id);
-        return ApiResult.OK(challengeDtoList);
-    }
-
- */
-
-
-
-    @GetMapping("all/v2/")
-    public ApiResult<List<ChallengeDto>> challenges2(@AuthenticationPrincipal JwtAuthentication authentication,
+    @GetMapping("possibleList")
+    @ApiOperation(value = "도전 가능 챌린지(쿼리 파라미터로 lastChallengeId, size 사용)")
+    public ApiResult<List<ChallengeDto>> possibleChallengeList(@AuthenticationPrincipal JwtAuthentication authentication,
                                                      @RequestParam Long lastChallengeId, @RequestParam int size) {
         List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id, lastChallengeId, size);
         return ApiResult.OK(challengeDtoList);
