@@ -6,9 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class CandyAttainRequestDto {
     @ApiModelProperty
     private Long challengeId;
+
+    public CandyAttainRequestDto() {}
+
+    public CandyAttainRequestDto(Long challengeId) {
+        this.challengeId = challengeId;
+    }
 }

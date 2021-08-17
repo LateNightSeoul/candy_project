@@ -8,11 +8,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Getter
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class CandyResponseDto {
     @ApiModelProperty(value = "요청 수행 뒤 student or parent의 캔디 보유 개수", example = "")
     private int candyAmount;
+
+    public CandyResponseDto() {}
+    public CandyResponseDto(int candyAmount) {
+        this.candyAmount = candyAmount;
+    }
 
     @Override
     public String toString() {
