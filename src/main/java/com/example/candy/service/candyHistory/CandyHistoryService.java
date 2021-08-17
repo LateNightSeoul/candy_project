@@ -1,9 +1,11 @@
 package com.example.candy.service.candyHistory;
 
+import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
+import com.example.candy.repository.candy.CandyHistoryDtoRepository;
 import com.example.candy.repository.candy.CandyHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.service.challenge.ChallengeService;
@@ -11,21 +13,20 @@ import com.example.candy.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class CandyHistoryService {
 
-    @Autowired
-    private CandyHistoryRepository candyHistoryRepository;
-    @Autowired
-    private ChallengeHistoryRepository challengeHistoryRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ChallengeService challengeService;
+    @Autowired private CandyHistoryRepository candyHistoryRepository;
+    @Autowired private ChallengeHistoryRepository challengeHistoryRepository;
+    @Autowired private UserService userService;
+    @Autowired private ChallengeService challengeService;
+    @Autowired private CandyHistoryDtoRepository candyHistoryDtoRepository;
 
     @Transactional
     public CandyHistory initCandy(User user) {
@@ -151,6 +152,10 @@ public class CandyHistoryService {
                 .user(user)
                 .build();
         return save(candyHistory);
+    }
+
+    public List<CandyHistoryResponseDto> getStudentCandyAll(Long userId, Long lastCandyHistoryId, int size) {
+        return candyHistoryDtoRepository.findStudentCandyAll(userId, lastCandyHistoryId, size);
     }
 
     public int candyStudent(Long userId) {
