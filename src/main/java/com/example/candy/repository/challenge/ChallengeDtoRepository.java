@@ -17,16 +17,22 @@ public class ChallengeDtoRepository {
     private final EntityManager em;
 
     @Transactional
-    public List<ChallengeDto> findChallenges(Long userId) {
+    public List<ChallengeDto> findChallenges(Long userId, Long lastChallengeId, int size) {
         return em.createQuery(
                 "select new " +
                         "com.example.candy.controller.challenge.dto.ChallengeDto(c.id,c.category,c.title,c.subTitle," +
                         "cl.id," +
                         "c.totalScore,c.requiredScore)" +
                         " from Challenge c" +
+                        " left join ChallengeHistory ch on c.id = ch.challenge.id" +
                         " left join ChallengeLike cl on c.id = cl.challenge.id" +
-                        " and cl.user.id = :userId", ChallengeDto.class)
+                        " and cl.user.id = :userId" +
+                        " where c.id < :lastChallengeId" +
+                        " and ch.challenge.id is null " +
+                        " order by c.id desc" , ChallengeDto.class)
                 .setParameter("userId", userId)
+                .setParameter("lastChallengeId", lastChallengeId)
+                .setMaxResults(size)
                 .getResultList();
     }
 

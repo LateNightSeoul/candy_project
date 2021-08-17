@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Getter @Setter
 public class ChallengeDto {
+
     @ApiModelProperty(value = "challenge id값", example = "1")
     private Long id;
     @ApiModelProperty(value = "과목명(KOREAN, ENGLISH, MATH)" ,example = "KOREAN")

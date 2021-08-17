@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/challenge")
 @Api(tags = {"챌린지"})
@@ -92,13 +94,16 @@ public class ChallengeController {
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
     }
 
-    @GetMapping("/all")
-    @ApiOperation(value = "모든 챌린지 확인, 좋아요를 했는지 안했는지도 확인")
-    public ApiResult<List<ChallengeDto>> challenges(@AuthenticationPrincipal JwtAuthentication authentication) {
-
-        List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id);
+    @GetMapping("possibleList")
+    @ApiOperation(value = "도전 가능 챌린지(쿼리 파라미터로 lastChallengeId, size 사용)")
+    public ApiResult<List<ChallengeDto>> possibleChallengeList(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                     @RequestParam Long lastChallengeId, @RequestParam int size) {
+        List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id, lastChallengeId, size);
         return ApiResult.OK(challengeDtoList);
     }
+
+
+
 
     @PostMapping("{challengeId}/like")
     @ApiOperation(value = "좋아요 기능")
@@ -106,8 +111,17 @@ public class ChallengeController {
             @AuthenticationPrincipal JwtAuthentication authentication,
             @PathVariable @ApiParam Long challengeId
     ) {
-        ChallengeLike saved = challengeLikeService.like(authentication.id, challengeId);
-        return ApiResult.OK(saved.getId());
+        // 먼저 찾고 없으면 like. 있으면 challengeLike 취소
+        Optional<ChallengeLike> challengeLike = challengeLikeService.findChallengeLike(authentication.id, challengeId);
+        if (challengeLike.isEmpty()) {
+            ChallengeLike saved = challengeLikeService.like(authentication.id, challengeId);
+            return ApiResult.OK(saved.getId());
+        } else {
+            // 삭제했을 때는 0 RETURN
+            challengeLikeService.delete(authentication.id, challengeId);
+            return ApiResult.OK(0L);
+        }
+
     }
 
     @GetMapping("likeList")

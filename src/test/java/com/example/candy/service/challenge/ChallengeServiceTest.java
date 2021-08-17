@@ -142,11 +142,11 @@ public class ChallengeServiceTest {
         System.out.println("challengeLike id = " + challengeLike.getId());
         //then
         Assertions.assertEquals(challengeLike,findOne.get());
-        List<ChallengeDto> challenges = challengeDtoRepository.findChallenges(user.getId());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTitle() = " + challenges.get(1).getTitle());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getSubTitle() = " + challenges.get(1).getSubTitle());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTotalScore() = " + challenges.get(1).getTotalScore());
-        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).isLike() = " + challenges.get(1).isLikeDone());
+        List<ChallengeDto> challenges = challengeDtoRepository.findChallenges(user.getId(),10L,10);
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTitle() = " + challenges.get(0).getTitle());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getSubTitle() = " + challenges.get(0).getSubTitle());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).getTotalScore() = " + challenges.get(0).getTotalScore());
+        System.out.println("challengeDtoRepository.findChallenges(user.getId()).get(0).isLike() = " + challenges.get(0).isLikeDone());
 
 
     }

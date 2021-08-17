@@ -60,12 +60,10 @@ public class ChallengeHistoryRepositoryTest {
                 .description("5형식")
                 .build();
 
-
         Challenge challenge2 = Challenge.builder()
                 .category(Category.ENGLISH)
                 .description("4형식")
                 .build();
-
 
         User user = User.builder()
                 .name("최준혁")

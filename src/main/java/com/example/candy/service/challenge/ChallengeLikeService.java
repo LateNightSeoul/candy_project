@@ -56,4 +56,9 @@ public class ChallengeLikeService {
         challengeLike.setCreateDate(LocalDateTime.now());
         return challengeLikeRepository.save(challengeLike);
     }
+
+    @Transactional
+    public void delete(Long userId, Long challengeId) {
+        challengeLikeRepository.deleteByUser_idAndChallenge_id(userId, challengeId);
+    }
 }

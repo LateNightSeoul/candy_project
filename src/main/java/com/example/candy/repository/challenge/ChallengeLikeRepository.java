@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface ChallengeLikeRepository extends JpaRepository<ChallengeLike, Long> {
     Optional<ChallengeLike> findByUserAndChallenge(User user, Challenge challenge);
 
+    void deleteByUser_idAndChallenge_id(Long userId, Long challengeId);
     List<ChallengeLike> findAllByUser(User user);
 }

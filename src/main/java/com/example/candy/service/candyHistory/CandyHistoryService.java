@@ -1,9 +1,11 @@
 package com.example.candy.service.candyHistory;
 
+import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
+import com.example.candy.repository.candy.CandyHistoryDtoRepository;
 import com.example.candy.repository.candy.CandyHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.service.challenge.ChallengeService;
@@ -11,21 +13,20 @@ import com.example.candy.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class CandyHistoryService {
 
-    @Autowired
-    private CandyHistoryRepository candyHistoryRepository;
-    @Autowired
-    private ChallengeHistoryRepository challengeHistoryRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ChallengeService challengeService;
+    @Autowired private CandyHistoryRepository candyHistoryRepository;
+    @Autowired private ChallengeHistoryRepository challengeHistoryRepository;
+    @Autowired private UserService userService;
+    @Autowired private ChallengeService challengeService;
+    @Autowired private CandyHistoryDtoRepository candyHistoryDtoRepository;
 
     @Transactional
     public CandyHistory initCandy(User user) {
@@ -121,6 +122,10 @@ public class CandyHistoryService {
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int candyAmount = challengeService.cancelCandyAndGetCandyAmount(userId, challengeId);
         CandyHistory latestOne = findLatestOne(userId);
+
+        if (latestOne.getAssignCandy() < candyAmount) {
+            throw new IllegalArgumentException("assignCandy is less than cancelCandyAmount");
+        }
         CandyHistory candyHistory = CandyHistory.builder()
                 .user(user)
                 .createDate(LocalDateTime.now())
@@ -140,6 +145,10 @@ public class CandyHistoryService {
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int attainCandyAmount = challengeService.completeChallenge(challengeId, userId);
         CandyHistory latestOne = findLatestOne(userId);
+
+        if (latestOne.getAssignCandy() < attainCandyAmount) {
+            throw new IllegalArgumentException("assignCandy is less than attainCandyAmount");
+        }
         CandyHistory candyHistory = CandyHistory.builder()
                 .eventType(EventType.ATTAIN)
                 .totalCandy(latestOne.getTotalCandy())
@@ -151,6 +160,10 @@ public class CandyHistoryService {
                 .user(user)
                 .build();
         return save(candyHistory);
+    }
+
+    public List<CandyHistoryResponseDto> getStudentCandyAll(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
+        return candyHistoryDtoRepository.findStudentCandyAll(userId, identity, category, lastCandyHistoryId, size);
     }
 
     public int candyStudent(Long userId) {

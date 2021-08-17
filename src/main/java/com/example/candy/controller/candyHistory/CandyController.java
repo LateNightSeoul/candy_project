@@ -9,7 +9,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/candy")
@@ -74,5 +77,16 @@ public class CandyController {
                                  @RequestBody @ApiParam CandyAttainRequestDto candyAttainRequestDto) {
         candyHistoryService.attainCandy(authentication.id, candyAttainRequestDto.getChallengeId());
         return ApiResult.OK(null);
+    }
+
+    @GetMapping("/history/{identity}/{category}/{lastCandyHistoryId}/{size}")
+    @ApiOperation(value = "학생 관련 모든 캔디 내역 리스트 불러오기")
+    public ApiResult<List<CandyHistoryResponseDto>> getStudentCandyAll(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                                       @RequestParam String identity, @RequestParam String category,
+                                                                       @RequestParam Long lastCandyHistoryId, @RequestParam int size) {
+        List<CandyHistoryResponseDto> candyHistoryResponseDtoList = candyHistoryService.getStudentCandyAll(authentication.id, identity, category, lastCandyHistoryId, size);
+        return ApiResult.OK(
+                candyHistoryResponseDtoList
+        );
     }
 }
