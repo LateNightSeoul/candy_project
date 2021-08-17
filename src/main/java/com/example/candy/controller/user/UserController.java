@@ -69,7 +69,7 @@ public class UserController {
     }
     
     @PostMapping("/new_pw")
-    @ApiOperation(value = "새로운 비밀번호 설정", notes = "인증했을 시 true, 인증하지 않았을 시 false 반환")
+    @ApiOperation(value = "새로운 비밀번호 설정", notes = "이메일 인증했을 시 true, 인증하지 않았을 시 false 반환")
     public ApiResult<Boolean> findPassword(@RequestBody @ApiParam NewPasswordRequestDto newPasswordRequestDto) throws NotFoundException {
     	return ApiResult.OK(userService.new_pw(newPasswordRequestDto.getEmail(), newPasswordRequestDto.getPassword()));
     }
@@ -77,5 +77,19 @@ public class UserController {
     @GetMapping("/info")
     public ApiResult<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal JwtAuthentication authentication) throws NotFoundException {
         return ApiResult.OK(userService.getUserInfo(authentication.id));
+    }
+
+    @PostMapping("/info/change")
+    public ApiResult<UserInfoResponseDto> changeUserInfo(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                         ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
+        return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
+                changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
+    }
+
+    @PostMapping("/password/change")
+    public ApiResult<Boolean> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
+                                             ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
+        userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword());
+        return ApiResult.OK(null);
     }
 }

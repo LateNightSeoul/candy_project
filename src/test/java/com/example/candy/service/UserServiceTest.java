@@ -4,6 +4,7 @@ import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.user.User;
 import com.example.candy.service.user.UserService;
+import javassist.NotFoundException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +27,6 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
-
 
     private String email;
     private String password;
@@ -63,5 +64,14 @@ class UserServiceTest {
 
     @Test
     void login() {
+    }
+
+    @Test
+    @Transactional
+    void 비밀번호_변경() throws NotFoundException {
+        User user = userService.join(email, true, password, parentPassword, name, phone, birth);
+        userService.changePassword(user.getId(), "abcd");
+        User user2 = userService.findById(user.getId()).get();
+        assertEquals("abcd", user2.getPassword());
     }
 }

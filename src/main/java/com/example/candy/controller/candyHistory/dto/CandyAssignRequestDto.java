@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CandyAssignRequestDto {
     @ApiModelProperty
-    private final long challengeId;
-    @ApiModelProperty
+    private final Long challengeId;
+    @ApiModelProperty(value = "배정할 캔디 갯수", example = "13")
     private final int candyAmount;
 }

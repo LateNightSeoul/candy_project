@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class FindPasswordRequestDto {
-    @ApiModelProperty
+	@ApiModelProperty(value = "이메일", example = "test@gmail.com")
     private String email;
 
     public FindPasswordRequestDto(){}
