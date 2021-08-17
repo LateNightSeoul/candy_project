@@ -124,7 +124,7 @@ public class CandyHistoryService {
         CandyHistory latestOne = findLatestOne(userId);
 
         if (latestOne.getAssignCandy() < candyAmount) {
-            throw new IllegalArgumentException("assignCandy is less than cancelCandy's amount");
+            throw new IllegalArgumentException("assignCandy is less than cancelCandyAmount");
         }
         CandyHistory candyHistory = CandyHistory.builder()
                 .user(user)
@@ -145,6 +145,10 @@ public class CandyHistoryService {
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int attainCandyAmount = challengeService.completeChallenge(challengeId, userId);
         CandyHistory latestOne = findLatestOne(userId);
+
+        if (latestOne.getAssignCandy() < attainCandyAmount) {
+            throw new IllegalArgumentException("assignCandy is less than attainCandyAmount");
+        }
         CandyHistory candyHistory = CandyHistory.builder()
                 .eventType(EventType.ATTAIN)
                 .totalCandy(latestOne.getTotalCandy())
