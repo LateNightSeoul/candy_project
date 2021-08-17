@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/challenge")
 @Api(tags = {"챌린지"})
@@ -120,8 +122,17 @@ public class ChallengeController {
             @AuthenticationPrincipal JwtAuthentication authentication,
             @PathVariable @ApiParam Long challengeId
     ) {
-        ChallengeLike saved = challengeLikeService.like(authentication.id, challengeId);
-        return ApiResult.OK(saved.getId());
+        // 먼저 찾고 없으면 like. 있으면 challengeLike 취소
+        Optional<ChallengeLike> challengeLike = challengeLikeService.findChallengeLike(authentication.id, challengeId);
+        if (challengeLike.isEmpty()) {
+            ChallengeLike saved = challengeLikeService.like(authentication.id, challengeId);
+            return ApiResult.OK(saved.getId());
+        } else {
+            // 삭제했을 때는 0 RETURN
+            challengeLikeService.delete(authentication.id, challengeId);
+            return ApiResult.OK(0L);
+        }
+
     }
 
     @GetMapping("likeList")
