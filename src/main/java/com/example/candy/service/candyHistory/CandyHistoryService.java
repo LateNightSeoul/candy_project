@@ -154,8 +154,8 @@ public class CandyHistoryService {
         return save(candyHistory);
     }
 
-    public List<CandyHistoryResponseDto> getStudentCandyAll(Long userId, Long lastCandyHistoryId, int size) {
-        return candyHistoryDtoRepository.findStudentCandyAll(userId, lastCandyHistoryId, size);
+    public List<CandyHistoryResponseDto> getStudentCandyAll(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
+        return candyHistoryDtoRepository.findStudentCandyAll(userId, identity, category, lastCandyHistoryId, size);
     }
 
     public int candyStudent(Long userId) {
