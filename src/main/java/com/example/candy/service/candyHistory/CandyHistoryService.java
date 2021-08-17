@@ -122,6 +122,10 @@ public class CandyHistoryService {
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int candyAmount = challengeService.cancelCandyAndGetCandyAmount(userId, challengeId);
         CandyHistory latestOne = findLatestOne(userId);
+
+        if (latestOne.getAssignCandy() < candyAmount) {
+            throw new IllegalArgumentException("assignCandy is less than cancelCandy's amount");
+        }
         CandyHistory candyHistory = CandyHistory.builder()
                 .user(user)
                 .createDate(LocalDateTime.now())
