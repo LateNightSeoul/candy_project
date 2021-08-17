@@ -24,7 +24,6 @@ public class CandyHistoryDtoRepository {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QCandyHistory candyHistory = new QCandyHistory("ch");
 
-
         BooleanBuilder builder= new BooleanBuilder();
         builder.and(candyHistory.user.id.eq(userId));
         builder.and(candyHistory.id.lt(lastCandyHistoryId));
@@ -51,7 +50,7 @@ public class CandyHistoryDtoRepository {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("CANCEL")));
             }
         }
-        
+
         return queryFactory
                 .select(Projections.constructor(CandyHistoryResponseDto.class,
                         candyHistory.eventType, candyHistory.createDate, candyHistory.amount))
