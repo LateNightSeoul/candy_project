@@ -3,7 +3,6 @@ package com.example.candy.service.candyHistory;
 import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
-import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.candy.CandyHistoryDtoRepository;
 import com.example.candy.repository.candy.CandyHistoryRepository;
@@ -13,11 +12,9 @@ import com.example.candy.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class CandyHistoryService {
@@ -162,8 +159,23 @@ public class CandyHistoryService {
         return save(candyHistory);
     }
 
-    public List<CandyHistoryResponseDto> getStudentCandyAll(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
-        return candyHistoryDtoRepository.findStudentCandyAll(userId, identity, category, lastCandyHistoryId, size);
+    public List<CandyHistoryResponseDto> getCandyHistory(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
+
+        if (identity == "student") {
+            if (category != "all" && category != "attain" && category != "withdraw") {
+                throw new IllegalArgumentException("not a valid category");
+            }
+        } else if (identity == "parent") {
+            if (category != "all" && category != "charge" && category != "assign" && category != "cancel") {
+                throw new IllegalArgumentException("not a valid category");
+            }
+        } else {
+            throw new IllegalArgumentException("not a valid identity");
+        }
+
+        return candyHistoryDtoRepository.findCandyHistory(userId, identity, category, lastCandyHistoryId, size);
     }
 
     public int candyStudent(Long userId) {

@@ -8,6 +8,8 @@ import com.example.candy.repository.challenge.ChallengeLikeRepository;
 import com.example.candy.repository.challenge.ChallengeRepository;
 import com.example.candy.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +38,14 @@ public class ChallengeLikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChallengeLike> findAll(Long userId) {
+    public List<ChallengeLike> findAll(Long userId, Long lastChallengeId, int size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
-        return challengeLikeRepository.findAllByUser(user);
+
+        PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
+        Page<ChallengeLike> challengeLikePage = challengeLikeRepository.findByUserAndChallenge_idLessThanOrderByChallenge_idDesc(user, lastChallengeId, pageRequest);
+        List<ChallengeLike> challengeLikeList = challengeLikePage.getContent();
+        return challengeLikeList;
     }
 
     @Transactional

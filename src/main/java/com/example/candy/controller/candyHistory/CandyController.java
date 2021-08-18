@@ -4,12 +4,9 @@ import com.example.candy.controller.ApiResult;
 import com.example.candy.controller.candyHistory.dto.*;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.candyHistory.CandyHistoryService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -81,10 +78,17 @@ public class CandyController {
 
     @GetMapping("/history/{identity}/{category}/{lastCandyHistoryId}/{size}")
     @ApiOperation(value = "학생 관련 모든 캔디 내역 리스트 불러오기")
-    public ApiResult<List<CandyHistoryResponseDto>> getStudentCandyAll(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                                       @RequestParam String identity, @RequestParam String category,
-                                                                       @RequestParam Long lastCandyHistoryId, @RequestParam int size) {
-        List<CandyHistoryResponseDto> candyHistoryResponseDtoList = candyHistoryService.getStudentCandyAll(authentication.id, identity, category, lastCandyHistoryId, size);
+        @ApiImplicitParams({
+                @ApiImplicitParam(name = "identity", value = "학생 조회 시 student \n 부모 조회 시 parent"),
+                @ApiImplicitParam(name = "category", value = "학생 조회 시 all / attain(습득) / withdraw(인출) \n" +
+                        "부모 조회 시 all / charge(충전) / assign(배정) / cancel(배정 취소)"),
+                @ApiImplicitParam(name = "lastCandyHistoryId", value = "이미 조회 된 candyHistory 데이터 중 가장 마지막 개체의 id"),
+                @ApiImplicitParam(name = "size", value = "불러올 데이터 갯수")
+        })
+    public ApiResult<List<CandyHistoryResponseDto>> getCandyHistory(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                                       @PathVariable String identity, @PathVariable String category,
+                                                                       @PathVariable Long lastCandyHistoryId, @PathVariable int size) {
+        List<CandyHistoryResponseDto> candyHistoryResponseDtoList = candyHistoryService.getCandyHistory(authentication.id, identity, category, lastCandyHistoryId, size);
         return ApiResult.OK(
                 candyHistoryResponseDtoList
         );

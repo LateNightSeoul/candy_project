@@ -1,21 +1,18 @@
 package com.example.candy.service.candyHistory;
 
+import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
-import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.challenge.ChallengeService;
-import com.example.candy.service.user.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -150,5 +147,50 @@ class CandyHistoryServiceTest {
         assertEquals(candyHistory.getParentCandy(), 80);
         assertEquals(candyHistory.getTotalCandy(), 80);
         assertEquals(candyHistory.getAssignCandy(), 0);
+    }
+
+    @Test
+    @Transactional
+    @Order(8)
+    void 캔디내역_조회_학생_all() {
+        candyHistoryService.initCandy(user);
+        CandyHistory candyHistory = candyHistoryService.chargeCandy(user.getId(), 50);
+        CandyHistory candyHistory2 = candyHistoryService.chargeCandy(user.getId(), 30);
+        CandyHistory candyHistory3 = candyHistoryService.chargeCandy(user.getId(), 20);
+        Challenge challenge = Challenge.builder()
+                .title("rap")
+                .build();
+        Challenge challenge1 = challengeService.saveChallenge(challenge);
+        candyHistoryService.assignCandy(user.getId(), challenge1.getId(), 10);
+        candyHistoryService.attainCandy(user.getId(), challenge1.getId());
+        candyHistoryService.withdrawCandy(user.getId(), 10);
+        List<CandyHistoryResponseDto> candyAll = candyHistoryService.getCandyHistory(user.getId(), "student", "all", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll) {
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+            + "  candy Event: " + candy.getEventType());
+
+        }
+        System.out.println("******************");
+
+        List<CandyHistoryResponseDto> candyAll2 = candyHistoryService.getCandyHistory(user.getId(), "student", "attain", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll2) {
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+                    + "  candy Event: " + candy.getEventType());
+
+        }
+        System.out.println("******************");
+
+        assertThrows(IllegalArgumentException.class, () -> candyHistoryService.getCandyHistory(user.getId(), "student", "charge", 1000L, 5));
+
+        List<CandyHistoryResponseDto> candyAll3 = candyHistoryService.getCandyHistory(user.getId(), "parent", "all", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll3) {
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+                    + "  candy Event: " + candy.getEventType());
+
+        }
+        System.out.println("******************");
     }
 }

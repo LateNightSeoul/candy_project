@@ -125,12 +125,13 @@ public class ChallengeController {
     }
 
     @GetMapping("likeList")
-    @ApiOperation(value = "좋아요 누른 challengeList 불러오기")
+    @ApiOperation(value = "좋아요 누른 challengeList 불러오기(쿼리 파라미터로 lastChallengeId, size 사용)")
     public ApiResult<List<ChallengeDto>> likeList(
-            @AuthenticationPrincipal JwtAuthentication authentication
+            @AuthenticationPrincipal JwtAuthentication authentication ,
+            @RequestParam Long lastChallengeId, @RequestParam int size
     ) {
         List<ChallengeDto> challengeDtoList = new ArrayList<>();
-        List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id);
+        List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id, lastChallengeId, size);
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
@@ -141,12 +142,13 @@ public class ChallengeController {
     }
 
     @GetMapping("completedList")
-    @ApiOperation(value = "완료된 챌린지 리스트 반환")
+    @ApiOperation(value = "완료된 챌린지 리스트 반환(쿼리 파라미터로 lastChallengeId, size 사용)")
     public ApiResult<List<MyChallengeDto>> completedList(
-            @AuthenticationPrincipal JwtAuthentication authentication
+            @AuthenticationPrincipal JwtAuthentication authentication ,
+            @RequestParam Long lastChallengeId, @RequestParam int size
     ) {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
-        List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(authentication.id, true);
+        List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(authentication.id, true,lastChallengeId,size);
 
         for (ChallengeHistory challengeHistory : challengeHistoryList) {
             Challenge challenge = challengeHistory.getChallenge();
@@ -161,12 +163,13 @@ public class ChallengeController {
     }
 
     @GetMapping("notCompletedList")
-    @ApiOperation(value = "완료하지 않은 챌린지 리스트 반환")
+    @ApiOperation(value = "완료하지 않은 챌린지 리스트 반환(쿼리 파라미터로 lastChallengeId, size 사용)")
     public ApiResult<List<MyChallengeDto>> notCompletedList(
-            @AuthenticationPrincipal JwtAuthentication authentication
+            @AuthenticationPrincipal JwtAuthentication authentication ,
+            @RequestParam Long lastChallengeId, @RequestParam int size
     ) {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
-        List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(authentication.id, false);
+        List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(authentication.id, false,lastChallengeId,size);
 
         for (ChallengeHistory challengeHistory : challengeHistoryList) {
             Challenge challenge = challengeHistory.getChallenge();
