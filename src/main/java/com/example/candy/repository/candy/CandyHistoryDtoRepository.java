@@ -20,7 +20,7 @@ public class CandyHistoryDtoRepository {
     private final EntityManager em;
 
     @Transactional
-    public List<CandyHistoryResponseDto> findStudentCandyAll(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
+    public List<CandyHistoryResponseDto> findCandyHistory(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QCandyHistory candyHistory = new QCandyHistory("ch");
 
