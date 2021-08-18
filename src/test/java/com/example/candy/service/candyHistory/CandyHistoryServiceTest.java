@@ -9,8 +9,10 @@ import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.challenge.ChallengeService;
 import com.example.candy.service.user.UserService;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,6 +157,7 @@ class CandyHistoryServiceTest {
     }
 
     @Test
+    @Transactional
     @Order(8)
     void 캔디내역_조회_학생_all() {
         candyHistoryService.initCandy(user);
@@ -165,12 +168,26 @@ class CandyHistoryServiceTest {
                 .title("rap")
                 .build();
         Challenge challenge1 = challengeService.saveChallenge(challenge);
+        candyHistoryService.assignCandy(user.getId(), challenge1.getId(), 10);
         candyHistoryService.attainCandy(user.getId(), challenge1.getId());
         List<CandyHistoryResponseDto> candyAll = candyHistoryService.getStudentCandyAll(user.getId(), "student", "all", 1000L, 5);
         System.out.println("******************");
         for (CandyHistoryResponseDto candy : candyAll) {
-            System.out.println("candy Amount: " + candy.getAmount());
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+            + "  candy Event" + candy.getEventType());
+
         }
         System.out.println("******************");
+
+        List<CandyHistoryResponseDto> candyAll2 = candyHistoryService.getStudentCandyAll(user.getId(), "student", "attain", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll2) {
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+                    + "  candy Event" + candy.getEventType());
+
+        }
+        System.out.println("******************");
+
+        assertThrows(InvalidDataAccessApiUsageException.class, () -> candyHistoryService.getStudentCandyAll(user.getId(), "student", "charge", 1000L, 5));
     }
 }
