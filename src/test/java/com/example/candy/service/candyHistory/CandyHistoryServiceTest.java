@@ -163,11 +163,12 @@ class CandyHistoryServiceTest {
         Challenge challenge1 = challengeService.saveChallenge(challenge);
         candyHistoryService.assignCandy(user.getId(), challenge1.getId(), 10);
         candyHistoryService.attainCandy(user.getId(), challenge1.getId());
+        candyHistoryService.withdrawCandy(user.getId(), 10);
         List<CandyHistoryResponseDto> candyAll = candyHistoryService.getCandyHistory(user.getId(), "student", "all", 1000L, 5);
         System.out.println("******************");
         for (CandyHistoryResponseDto candy : candyAll) {
             System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
-            + "  candy Event" + candy.getEventType());
+            + "  candy Event: " + candy.getEventType());
 
         }
         System.out.println("******************");
@@ -176,11 +177,20 @@ class CandyHistoryServiceTest {
         System.out.println("******************");
         for (CandyHistoryResponseDto candy : candyAll2) {
             System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
-                    + "  candy Event" + candy.getEventType());
+                    + "  candy Event: " + candy.getEventType());
 
         }
         System.out.println("******************");
 
         assertThrows(IllegalArgumentException.class, () -> candyHistoryService.getCandyHistory(user.getId(), "student", "charge", 1000L, 5));
+
+        List<CandyHistoryResponseDto> candyAll3 = candyHistoryService.getCandyHistory(user.getId(), "parent", "all", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll3) {
+            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
+                    + "  candy Event: " + candy.getEventType());
+
+        }
+        System.out.println("******************");
     }
 }
