@@ -188,7 +188,9 @@ public class ChallengeServiceTest {
     void 완료한_챌린지_목록() {
         challengeService.assignCandyInChallengeHistory(challenge.getId(), 30, user);
         challengeService.completeChallenge(challenge.getId(), user.getId());
-        List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(user.getId(), true);
+        Long lastChallengeId = 1000L;
+        int size = 5;
+        List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(user.getId(), true,lastChallengeId,size);
         for (ChallengeHistory ch : challengeHistoryList) {
             assertEquals(ch.isComplete(),true);
         }
@@ -199,7 +201,9 @@ public class ChallengeServiceTest {
     @Transactional
     void 완료하지_않은_챌린지_목록() {
         challengeService.assignCandyInChallengeHistory(challenge.getId(), 30, user);
-        List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(user.getId(), false);
+        Long lastChallengeId = 1000L;
+        int size = 5;
+        List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(user.getId(), false,lastChallengeId,size);
         for (ChallengeHistory ch : challengeHistoryList) {
             assertEquals(ch.isComplete(),false);
         }
