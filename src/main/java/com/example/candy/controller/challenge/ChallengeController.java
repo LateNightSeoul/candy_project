@@ -127,10 +127,11 @@ public class ChallengeController {
     @GetMapping("likeList")
     @ApiOperation(value = "좋아요 누른 challengeList 불러오기")
     public ApiResult<List<ChallengeDto>> likeList(
-            @AuthenticationPrincipal JwtAuthentication authentication
+            @AuthenticationPrincipal JwtAuthentication authentication ,
+            @RequestParam Long lastChallengeId, @RequestParam int size
     ) {
         List<ChallengeDto> challengeDtoList = new ArrayList<>();
-        List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id);
+        List<ChallengeLike> challengeLikeList = challengeLikeService.findAll(authentication.id, lastChallengeId, size);
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
