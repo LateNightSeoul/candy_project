@@ -30,8 +30,8 @@ public class CandyHistoryDtoRepository {
 
         if (identity == "student") {
             if (category == "all") {
-                builder.and(candyHistory.eventType.eq(EventType.valueOf("ATTAIN")));
-                builder.and(candyHistory.eventType.eq(EventType.valueOf("WITHDRAW")));
+                builder.or(candyHistory.eventType.eq(EventType.valueOf("ATTAIN")));
+                builder.or(candyHistory.eventType.eq(EventType.valueOf("WITHDRAW")));
             } else if (category == "attain") {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("ATTAIN")));
             } else if (category == "withdraw") {
@@ -39,9 +39,9 @@ public class CandyHistoryDtoRepository {
             }
         } else if (identity == "parent") {
             if (category == "all") {
-                builder.and(candyHistory.eventType.eq(EventType.valueOf("CHARGE")));
-                builder.and(candyHistory.eventType.eq(EventType.valueOf("ASSIGN")));
-                builder.and(candyHistory.eventType.eq(EventType.valueOf("CANCEL")));
+                builder.or(candyHistory.eventType.eq(EventType.valueOf("CHARGE")));
+                builder.or(candyHistory.eventType.eq(EventType.valueOf("ASSIGN")));
+                builder.or(candyHistory.eventType.eq(EventType.valueOf("CANCEL")));
             } else if (category == "charge") {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("CHARGE")));
             } else if (category == "assign") {
