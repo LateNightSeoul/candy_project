@@ -99,16 +99,17 @@ public class ChallengeService {
 
     public int completeChallenge(Long challengeId, Long userId) {
         ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
-                .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
+                .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
         if (challengeHistory.getAssignedCandy() <= 0) {
             throw new IllegalStateException("Assigned Candy is below 0");
         }
+        int assignedCandy = challengeHistory.getAssignedCandy();
         challengeHistory.setComplete(true);
         challengeHistory.setCompleteDate(LocalDateTime.now());
         challengeHistory.setAssignedCandy(0);
         challengeHistory.setModifiedDate(LocalDateTime.now());
         saveChallengeHistory(challengeHistory);
-        return challengeHistory.getAssignedCandy();
+        return assignedCandy;
     }
 
     //완료된 challengeHistory 찾기
