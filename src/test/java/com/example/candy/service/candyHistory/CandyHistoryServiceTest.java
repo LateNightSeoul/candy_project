@@ -1,5 +1,6 @@
 package com.example.candy.service.candyHistory;
 
+import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.challenge.Challenge;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,5 +152,25 @@ class CandyHistoryServiceTest {
         assertEquals(candyHistory.getParentCandy(), 80);
         assertEquals(candyHistory.getTotalCandy(), 80);
         assertEquals(candyHistory.getAssignCandy(), 0);
+    }
+
+    @Test
+    @Order(8)
+    void 캔디내역_조회_학생_all() {
+        candyHistoryService.initCandy(user);
+        CandyHistory candyHistory = candyHistoryService.chargeCandy(user.getId(), 50);
+        CandyHistory candyHistory2 = candyHistoryService.chargeCandy(user.getId(), 30);
+        CandyHistory candyHistory3 = candyHistoryService.chargeCandy(user.getId(), 20);
+        Challenge challenge = Challenge.builder()
+                .title("rap")
+                .build();
+        Challenge challenge1 = challengeService.saveChallenge(challenge);
+        candyHistoryService.attainCandy(user.getId(), challenge1.getId());
+        List<CandyHistoryResponseDto> candyAll = candyHistoryService.getStudentCandyAll(user.getId(), "student", "all", 1000L, 5);
+        System.out.println("******************");
+        for (CandyHistoryResponseDto candy : candyAll) {
+            System.out.println("candy Amount: " + candy.getAmount());
+        }
+        System.out.println("******************");
     }
 }
