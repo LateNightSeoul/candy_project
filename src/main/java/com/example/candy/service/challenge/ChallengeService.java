@@ -11,6 +11,8 @@ import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeLikeRepository;
 import com.example.candy.repository.challenge.ChallengeRepository;
 import com.example.candy.repository.user.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,19 +113,25 @@ public class ChallengeService {
     }
 
     //완료된 challengeHistory 찾기
-    public List<ChallengeHistory> completedChallengeList(Long userId, boolean complete) {
+    public List<ChallengeHistory> completedChallengeList(Long userId, boolean complete, Long lastChallengeId, int size) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
-        return challengeHistoryRepository.findAllByUserAndAndComplete(user, true);
+        PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, true, lastChallengeId, pageRequest);
+        List<ChallengeHistory> challengeHistoryList = page.getContent();
+        return challengeHistoryList;
     }
 
     //완료되지 않은 challengeHistory 찾기
-    public List<ChallengeHistory> notCompletedChallengeList(Long userId, boolean complete) {
+    public List<ChallengeHistory> notCompletedChallengeList(Long userId, boolean complete,Long lastChallengeId, int size) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
-        return challengeHistoryRepository.findAllByUserAndAndComplete(user, false);
+        PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, false, lastChallengeId, pageRequest);
+        List<ChallengeHistory> challengeHistoryList = page.getContent();
+        return challengeHistoryList;
     }
 
     public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {
