@@ -32,6 +32,7 @@ public class CandyHistoryService {
                 .eventType(EventType.INIT)
                 .parentCandy(0)
                 .studentCandy(0)
+                .assignCandy(0)
                 .amount(0)
                 .user(user)
                 .createDate(LocalDateTime.now())
