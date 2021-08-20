@@ -72,7 +72,7 @@ public class ChallengeService {
         Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, user.getId());
         ChallengeHistory challengeHistory;
         if (findChallengeHistory.isPresent()) {
-            if (findChallengeHistory.get().isComplete() == true || findChallengeHistory.get().getAssignedCandy() != 0) {
+            if (findChallengeHistory.get().isComplete() || findChallengeHistory.get().getAssignedCandy() != 0) {
                 throw new IllegalStateException("ChallengeHistory Already Exists");
             }
             findChallengeHistory.get().setAssignedCandy(amount);
@@ -84,7 +84,7 @@ public class ChallengeService {
         }
         return saveChallengeHistory(challengeHistory);
     }
-
+    
     public int cancelCandyAndGetCandyAmount(Long userId, Long challengeId) {
         ChallengeHistory findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
