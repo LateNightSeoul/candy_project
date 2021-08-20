@@ -71,17 +71,17 @@ public class CandyHistoryService {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("no such userId"));
 
-        CandyHistory latestOne = findLatestOne(userId);
-        if (latestOne.getStudentCandy() < amount) {
+        CandyHistory latestCandy = findLatestOne(userId);
+        if (latestCandy.getStudentCandy() < amount) {
             throw new IllegalArgumentException("Not Enough Candy To Withdraw");
         }
         CandyHistory candy = CandyHistory.builder()
                 .user(user)
                 .createDate(LocalDateTime.now())
                 .amount(amount)
-                .studentCandy(latestOne.getStudentCandy() - amount)
-                .parentCandy(latestOne.getParentCandy())
-                .totalCandy(latestOne.getTotalCandy() - amount)
+                .studentCandy(latestCandy.getStudentCandy() - amount)
+                .parentCandy(latestCandy.getParentCandy())
+                .totalCandy(latestCandy.getTotalCandy() - amount)
                 .eventType(EventType.WITHDRAW)
                 .build();
         return save(candy);
@@ -94,8 +94,8 @@ public class CandyHistoryService {
         }
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
-        CandyHistory latestOne = findLatestOne(userId);
-        if (latestOne.getParentCandy() < amount) {
+        CandyHistory latestCandy = findLatestOne(userId);
+        if (latestCandy.getParentCandy() < amount) {
             throw new IllegalArgumentException("Not Enough Candy To assign");
         }
 
@@ -103,9 +103,9 @@ public class CandyHistoryService {
 
         CandyHistory candyHistory = CandyHistory.builder()
                 .eventType(EventType.ASSIGN)
-                .totalCandy(latestOne.getTotalCandy())
-                .parentCandy(latestOne.getParentCandy() - amount)
-                .studentCandy(latestOne.getStudentCandy())
+                .totalCandy(latestCandy.getTotalCandy())
+                .parentCandy(latestCandy.getParentCandy() - amount)
+                .studentCandy(latestCandy.getStudentCandy())
                 .assignCandy(amount)
                 .amount(amount)
                 .createDate(LocalDateTime.now())
@@ -119,19 +119,19 @@ public class CandyHistoryService {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int candyAmount = challengeService.cancelCandyAndGetCandyAmount(userId, challengeId);
-        CandyHistory latestOne = findLatestOne(userId);
+        CandyHistory latestCandy = findLatestOne(userId);
 
-        if (latestOne.getAssignCandy() < candyAmount) {
+        if (latestCandy.getAssignCandy() < candyAmount) {
             throw new IllegalArgumentException("assignCandy is less than cancelCandyAmount");
         }
         CandyHistory candyHistory = CandyHistory.builder()
                 .user(user)
                 .createDate(LocalDateTime.now())
                 .amount(candyAmount)
-                .assignCandy(latestOne.getAssignCandy() - candyAmount)
-                .studentCandy(latestOne.getStudentCandy())
-                .parentCandy(latestOne.getParentCandy() + candyAmount)
-                .totalCandy(latestOne.getTotalCandy())
+                .assignCandy(latestCandy.getAssignCandy() - candyAmount)
+                .studentCandy(latestCandy.getStudentCandy())
+                .parentCandy(latestCandy.getParentCandy() + candyAmount)
+                .totalCandy(latestCandy.getTotalCandy())
                 .eventType(EventType.CANCEL)
                 .build();
         return save(candyHistory);
@@ -142,17 +142,17 @@ public class CandyHistoryService {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
         int attainCandyAmount = challengeService.completeChallenge(challengeId, userId);
-        CandyHistory latestOne = findLatestOne(userId);
+        CandyHistory latestCandy = findLatestOne(userId);
 
-        if (latestOne.getAssignCandy() < attainCandyAmount) {
+        if (latestCandy.getAssignCandy() < attainCandyAmount) {
             throw new IllegalArgumentException("assignCandy is less than attainCandyAmount");
         }
         CandyHistory candyHistory = CandyHistory.builder()
                 .eventType(EventType.ATTAIN)
-                .totalCandy(latestOne.getTotalCandy())
-                .parentCandy(latestOne.getParentCandy())
-                .studentCandy(latestOne.getStudentCandy() + attainCandyAmount)
-                .assignCandy(latestOne.getAssignCandy() - attainCandyAmount)
+                .totalCandy(latestCandy.getTotalCandy())
+                .parentCandy(latestCandy.getParentCandy())
+                .studentCandy(latestCandy.getStudentCandy() + attainCandyAmount)
+                .assignCandy(latestCandy.getAssignCandy() - attainCandyAmount)
                 .amount(attainCandyAmount)
                 .createDate(LocalDateTime.now())
                 .user(user)
@@ -180,13 +180,13 @@ public class CandyHistoryService {
     }
 
     public int candyStudent(Long userId) {
-        CandyHistory latestOne = findLatestOne(userId);
-        return latestOne.getStudentCandy();
+        CandyHistory latestCandy = findLatestOne(userId);
+        return latestCandy.getStudentCandy();
     }
 
     public int candyParent(Long userId) {
-        CandyHistory latestOne = findLatestOne(userId);
-        return latestOne.getParentCandy();
+        CandyHistory latestCandy = findLatestOne(userId);
+        return latestCandy.getParentCandy();
     }
 
     public CandyHistory findLatestOne(Long userId) { return candyHistoryRepository.findTopByUser_IdOrderByCreateDateDesc(userId); }
