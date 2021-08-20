@@ -84,7 +84,7 @@ public class ChallengeService {
         }
         return saveChallengeHistory(challengeHistory);
     }
-    
+
     public int cancelCandyAndGetCandyAmount(Long userId, Long challengeId) {
         ChallengeHistory findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
                 .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
