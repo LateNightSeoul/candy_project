@@ -189,5 +189,30 @@ public class ChallengeController {
         ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(authentication.id, challengeId);
         return ApiResult.OK(challengeDetail);
     }
-
+    
+    @GetMapping("/problem/list")
+    @ApiOperation(value = "문제 반환")
+    public ApiResult<List<Problem>> problemList(@AuthenticationPrincipal JwtAuthentication authentication,
+            									@PathVariable @ApiParam Long challengeId) {
+    	
+    	
+    	
+    	return ApiResult.OK(null);
+    }
+    
+    @GetMapping("/problem/solve")
+    @ApiOperation(value = "문제 풀이")
+    public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
+    																 @PathVariable @ApiParam Long challengeId) {
+    	
+    	return ApiResult.OK(null);
+    }
+    
+    @GetMapping("/problem/marking")
+    @ApiOperation(value = "문제 채점")
+    public ApiResult<List<ProblemMarkingResponseDto>> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
+    																 @PathVariable @ApiParam Long challengeId) {
+    
+    	return ApiResult.OK(null);
+    }
 }
