@@ -41,7 +41,7 @@ public class ChallengeDtoRepository {
         ChallengeDetailResponseDto challengeDetailResponseDto = em.createQuery(
                 "select new " +
                         "com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto(" +
-                        "c.title, c.subTitle, ch.assignedCandy, cl.id, c.category, c.description," +
+                        "c.id, c.title, c.subTitle, ch.assignedCandy, cl.id, c.category, c.description," +
                         "c.totalScore, c.requiredScore, c.level, c.problemCount" +
                         ")" +
                         "from Challenge c" +
