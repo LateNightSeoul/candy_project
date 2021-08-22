@@ -11,6 +11,8 @@ import javax.persistence.Enumerated;
 @Getter
 public class ChallengeDetailResponseDto {
 
+    @ApiModelProperty(value = "챌린지Id", example = "1")
+    private Long challengeId;
     @ApiModelProperty(value = "제목", example = "5형식")
     private String title;
     @ApiModelProperty(value = "부제목", example = "5형식 동사에 대한 이해")
@@ -39,8 +41,9 @@ public class ChallengeDetailResponseDto {
     @ApiModelProperty(value = "챌린지에 있는 문제의 개수", example = "3")
     private int problemCount;
 
-    public ChallengeDetailResponseDto(String title, String subTitle, Object assignedCandy, Object id, Category category, String description,
+    public ChallengeDetailResponseDto(Long challengeId, String title, String subTitle, Object assignedCandy, Object id, Category category, String description,
                                       int totalScore, int requiredScore, int level, int problemCount) {
+        this.challengeId = challengeId;
         this.title = title;
         this.subTitle = subTitle;
         if(assignedCandy != null) {

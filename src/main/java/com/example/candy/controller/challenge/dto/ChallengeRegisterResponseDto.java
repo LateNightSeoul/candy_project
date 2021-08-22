@@ -12,6 +12,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Getter
 public class ChallengeRegisterResponseDto {
 
+    @ApiModelProperty(value = "챌린지Id", example = "3")
+    private Long challengeId;
     @ApiModelProperty(value = "제목", example = "5형식")
     private String challengeTitle;
     @ApiModelProperty(value = "챌린지에 있는 문제의 개수", example = "3")
@@ -21,7 +23,7 @@ public class ChallengeRegisterResponseDto {
 
     public ChallengeRegisterResponseDto(Challenge challenge) {
         checkArgument(challenge != null, "challenge must be provided.");
-
+        this.challengeId = challenge.getId();
         this.challengeTitle = challenge.getTitle();
         this.problemCount = challenge.getProblemCount();
         this.category = challenge.getCategory();
