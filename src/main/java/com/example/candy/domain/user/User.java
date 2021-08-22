@@ -45,9 +45,6 @@ public class User {
     private int loginCount;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createDate;
-    
-    private int parentCandy;
-    private int studentCandy;
 
     @Transient
     @Enumerated(EnumType.STRING)
