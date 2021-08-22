@@ -14,17 +14,23 @@ import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
+import com.example.candy.service.storage.FileStorageService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/challenge")
@@ -37,6 +43,8 @@ public class ChallengeController {
     private ChallengeLikeService challengeLikeService;
     @Autowired
     private ChallengeDtoRepository challengeDtoRepository;
+    @Autowired
+    private FileStorageService fileStorageService;
     
 
     @PostMapping("/register")
@@ -238,4 +246,48 @@ public class ChallengeController {
     	
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
     }
+    
+    @PostMapping("/video/lecture/register")
+    @ApiOperation(value = "강의 한 개 업로드")
+    public String videoLectureRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile file, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto) {
+    	
+    	String fileName = fileStorageService.storeFile(file);
+    	
+    	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+    			.path("/download/")
+    			.path(fileName)
+    			.toUriString();
+    			
+    	return fileDownloadUri;
+    }
+    
+    @PostMapping("/video/lecture/register")
+    @ApiOperation(value = "강의 여러 개 업로드")
+    public List<String> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile[] files, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto) {
+    	
+    	return Arrays.asList(files)
+    		.stream()
+    		.map(file -> videoLectureRegister(authentication, file, videoLectureRequestDto))
+    		.collect(Collectors.toList());
+    }
+    
+//    @PostMapping("/video/lecture/return")
+//    @ApiOperation(value = "강의 반환")
+//    public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
+//    		@RequestBody @ApiParam ProblemMarkingRequestDto problemMarkingRequestDto) {
+//    	
+//    	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
+//    	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
+//    	
+//    	for (ProblemMarkingRQDto problemMarkingRQDto : problemMarkingRQDtoList) {
+//    		ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemMarkingRQDto.getChallengeId(), authentication.id);
+//    		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
+//    		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
+//    	}
+//    	
+//    	
+//    	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
+//    }
 }

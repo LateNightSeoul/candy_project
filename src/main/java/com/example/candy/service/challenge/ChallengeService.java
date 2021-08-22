@@ -200,6 +200,13 @@ public class ChallengeService {
     	
     	return challengeHistory;
     }
+    
+    public Challenge findChallenge(Long challengeId) {
+    	Challenge challenge = findChallengeById(challengeId)
+    			.orElseThrow(() -> new NotFoundException("Challenge Not Found"));
+    	
+    	return challenge;
+    }
 
     public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {
         return challengeDtoRepository.findChallengeDetail(userId, challengeId)
