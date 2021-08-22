@@ -50,6 +50,8 @@ public class UserService {
                 .birth(birth)
                 .enabled(true)
                 .createDate(LocalDateTime.now())
+                .lastLoginAt(LocalDateTime.now())
+                .loginCount(1)
                 .build();
 
         User savedUser = save(user);
@@ -140,6 +142,10 @@ public class UserService {
     }
     @Transactional
     public void changePassword(Long userId, String newPassword) throws NotFoundException {
+        checkArgument(
+                newPassword.length() >= 4 && newPassword.length() <= 15,
+                "password length must be between 4 and 15 characters."
+        );
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         user.setPassword(newPassword);
