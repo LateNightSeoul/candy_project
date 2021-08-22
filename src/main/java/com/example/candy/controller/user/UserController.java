@@ -89,9 +89,9 @@ public class UserController {
 
     @PostMapping("/password/change")
     @ApiOperation(value = "새로운 비밀번호 설정 (로그인 후 유저 정보 페이지에서)", notes = "이메일 인증 필요 X")
-    public ApiResult<Boolean> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
+    public ApiResult<ChangePasswordResponseDto> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
                                              @RequestBody @ApiParam ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
-        userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword());
-        return ApiResult.OK(null);
+        User user = userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword(), changePasswordRequestDto.getOriginPassword());
+        return ApiResult.OK(new ChangePasswordResponseDto(user.getId()));
     }
 }
