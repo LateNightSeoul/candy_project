@@ -1,5 +1,6 @@
 package com.example.candy.service;
 
+import com.example.candy.controller.user.dto.UserInfoResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.user.User;
@@ -63,15 +64,19 @@ class UserServiceTest {
     }
 
     @Test
-    void login() {
-    }
-
-    @Test
     @Transactional
     void 비밀번호_변경() throws NotFoundException {
         User user = userService.join(email, true, password, parentPassword, name, phone, birth);
         userService.changePassword(user.getId(), "abcd");
         User user2 = userService.findById(user.getId()).get();
         assertEquals("abcd", user2.getPassword());
+    }
+
+    @Test
+    @Transactional
+    void 유저정보_변경() throws NotFoundException {
+        User user = userService.join(email, true, password, parentPassword, name, phone, birth);
+        UserInfoResponseDto savedUser = userService.changeUserInfo(user.getId(), "lee", "010-1111-1111", "123456");
+        assertEquals(user.getPhone(), savedUser.getPhone());
     }
 }

@@ -80,15 +80,16 @@ public class UserController {
     }
 
     @PostMapping("/info/change")
+    @ApiOperation(value = "유저 정보 변경")
     public ApiResult<UserInfoResponseDto> changeUserInfo(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                         ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
+                                                         @RequestBody @ApiParam ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
         return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
                 changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
     }
 
     @PostMapping("/password/change")
     public ApiResult<Boolean> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
-                                             ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
+                                             @RequestBody @ApiParam ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
         userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword());
         return ApiResult.OK(null);
     }

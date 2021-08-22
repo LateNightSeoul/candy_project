@@ -8,7 +8,9 @@ import com.example.candy.domain.challenge.ChallengeLike;
 import com.example.candy.domain.choice.Choice;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
+import com.example.candy.domain.problem.ProblemHistory;
 import com.example.candy.repository.challenge.ChallengeDtoRepository;
+import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
@@ -35,6 +37,7 @@ public class ChallengeController {
     private ChallengeLikeService challengeLikeService;
     @Autowired
     private ChallengeDtoRepository challengeDtoRepository;
+    
 
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
@@ -189,5 +192,50 @@ public class ChallengeController {
         ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(authentication.id, challengeId);
         return ApiResult.OK(challengeDetail);
     }
+    
+    @PostMapping("/problem/solve")
+    @ApiOperation(value = "문제 풀이")
+    public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
+    		@RequestBody @ApiParam ProblemSolvingRequestDto problemSolvingRequestDto) {
+    	
+    	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
+        for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
+            
+            Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
+        
+            ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
+
+            ProblemHistory problemHistory = ProblemHistory.builder()
+            			  .challengeHistory(challengeHistory)	
+            			  .problem(problem)
+            			  .isSuccess(false)
+            			  .isMultiple(problemSolvingDto.isMultiple())
+            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
+            			  .answer(problemSolvingDto.getAnswer())
+            			  .build();
+
+            challengeService.solvedProblem(problemHistory);
+        }
+
+    	return ApiResult.OK(null);
+    }
+    
+    @PostMapping("/problem/mark")
+    @ApiOperation(value = "문제 채점")
+    public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestBody @ApiParam ProblemMarkingRequestDto problemMarkingRequestDto) {
+    	
+    	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
+    	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
+    	
+    	for (ProblemMarkingRQDto problemMarkingRQDto : problemMarkingRQDtoList) {
+    		ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemMarkingRQDto.getChallengeId(), authentication.id);
+    		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
+    		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
+    	}
+    	
+    	
+    	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
+    }
 }

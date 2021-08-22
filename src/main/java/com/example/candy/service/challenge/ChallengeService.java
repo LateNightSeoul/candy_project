@@ -1,8 +1,11 @@
 package com.example.candy.service.challenge;
 
 import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
+import com.example.candy.controller.challenge.dto.ProblemMarkingRSDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
+import com.example.candy.domain.problem.Problem;
+import com.example.candy.domain.problem.ProblemHistory;
 import com.example.candy.domain.user.User;
 import com.example.candy.enums.Category;
 import com.example.candy.error.NotFoundException;
@@ -10,7 +13,11 @@ import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeLikeRepository;
 import com.example.candy.repository.challenge.ChallengeRepository;
+import com.example.candy.repository.challenge.ProblemHistoryRepository;
+import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.repository.user.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,13 +35,17 @@ public class ChallengeService {
     private final ChallengeLikeRepository challengeLikeRepository;
     private final ChallengeHistoryRepository challengeHistoryRepository;
     private final ChallengeDtoRepository challengeDtoRepository;
+    private final ProblemRepository problemRepository;
+    private final ProblemHistoryRepository problemHistoryRepository;
 
-    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository) {
+    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository, ProblemRepository problemRepository, ProblemHistoryRepository problemHistoryRepository) {
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.challengeLikeRepository = challengeLikeRepository;
         this.challengeHistoryRepository = challengeHistoryRepository;
         this.challengeDtoRepository = challengeDtoRepository;
+        this.problemRepository = problemRepository;
+        this.problemHistoryRepository = problemHistoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -68,17 +79,52 @@ public class ChallengeService {
         return challengeRepository.save(challenge);
     }
 
+    @Transactional
+    public void solvedProblem(ProblemHistory problemHistory) {
+    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
+    	
+    	OproblemHistory.ifPresentOrElse(CproblemHistory -> {
+    		CproblemHistory.setId(OproblemHistory.get().getId());
+    		CproblemHistory.setAnswer(problemHistory.getAnswer());
+    		CproblemHistory.setChallengeHistory(problemHistory.getChallengeHistory());
+    		CproblemHistory.setMultiple(problemHistory.isMultiple());
+    		CproblemHistory.setSuccess(problemHistory.isSuccess());
+    		CproblemHistory.setProblem(problemHistory.getProblem());
+    		CproblemHistory.setMultipleAnswer(problemHistory.getMultipleAnswer());
+    		
+    		problemHistoryRepository.save(CproblemHistory);
+    	}, () -> {problemHistoryRepository.save(problemHistory);});
+    }
+    
+    @Transactional
+    public ProblemMarkingRSDto markedProblem(ProblemHistory problemHistory) {
+//    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
+    	String answerMark;
+    	
+    	Problem problem = problemRepository.findById(problemHistory.getProblem().getId())
+    			.orElseThrow(() -> new NotFoundException("Problem Not Found"));
+    	
+    	if(problem.isMultiple() == true) {
+    		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
+    	}else {
+    		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
+    	}
+    	
+    	return new ProblemMarkingRSDto(answerMark); 
+    }
+
+
     public ChallengeHistory assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
         Optional<ChallengeHistory> findChallengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, user.getId());
         ChallengeHistory challengeHistory;
         if (findChallengeHistory.isPresent()) {
-            if (findChallengeHistory.get().isComplete() == true || findChallengeHistory.get().getAssignedCandy() != 0) {
+            if (findChallengeHistory.get().isComplete() || findChallengeHistory.get().getAssignedCandy() != 0) {
                 throw new IllegalStateException("ChallengeHistory Already Exists");
             }
             findChallengeHistory.get().setAssignedCandy(amount);
             challengeHistory = findChallengeHistory.get();
         } else {
-            Challenge findChallenge = findById(challengeId)
+            Challenge findChallenge = findChallengeById(challengeId)
                     .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
             challengeHistory = new ChallengeHistory(user, findChallenge, amount);
         }
@@ -134,12 +180,33 @@ public class ChallengeService {
         return challengeHistoryList;
     }
 
+    public Problem findProblem(Long problemId) {
+        Problem problem = problemRepository.findById(problemId)
+            .orElseThrow(() -> new NotFoundException("Problem Not Found"));
+
+        return problem;
+    }
+    
+    public ProblemHistory findProblemHistory(Long challengeHistoryId, Long problemId) {
+    	ProblemHistory problemHistory = problemHistoryRepository.findByChallengeHistory_idAndProblem_id(challengeHistoryId, problemId)
+    		.orElseThrow(() -> new NotFoundException("Problem History Not Found"));
+    	
+    	return problemHistory;
+    }
+    
+    public ChallengeHistory findChallengeHistory(Long challengeId, Long userId) {
+    	ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
+    		.orElseThrow(() -> new NotFoundException("Challenge History Not Found"));
+    	
+    	return challengeHistory;
+    }
+
     public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {
         return challengeDtoRepository.findChallengeDetail(userId, challengeId)
                 .orElseThrow(() -> new NotFoundException("No Such Challenge"));
     }
 
-    public Optional<Challenge> findById(Long challengeId) {
+    public Optional<Challenge> findChallengeById(Long challengeId) {
         return challengeRepository.findById(challengeId);
     }
 
