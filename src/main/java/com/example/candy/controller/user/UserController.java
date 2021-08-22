@@ -82,7 +82,7 @@ public class UserController {
     @PostMapping("/info/change")
     @ApiOperation(value = "유저 정보 변경")
     public ApiResult<UserInfoResponseDto> changeUserInfo(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                         ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
+                                                         @RequestBody @ApiParam ChangeUserInfoRequestDto changeUserInfoRequestDto) throws NotFoundException {
         return ApiResult.OK(userService.changeUserInfo(authentication.id, changeUserInfoRequestDto.getName(),
                 changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
     }

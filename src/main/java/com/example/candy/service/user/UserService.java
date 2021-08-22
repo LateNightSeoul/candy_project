@@ -128,6 +128,8 @@ public class UserService {
     }
     @Transactional
     public UserInfoResponseDto changeUserInfo(Long userId, String name, String phone, String birth) throws NotFoundException {
+        checkArgument(name != null && phone != null && birth != null, "nothing has to be null");
+        checkArgument(name.length() >= 2, "name length must be over 1");
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         user.setName(name);
