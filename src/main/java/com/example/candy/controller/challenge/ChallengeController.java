@@ -51,61 +51,13 @@ public class ChallengeController {
     private FileStorageService fileStorageService;
     @Autowired
     private VideoStreamingService videoStreamingService;
-    
+
 
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
-
-        Challenge challenge = Challenge.builder()
-                .title(challengeRegisterRequestDto.getTitle())
-                .subTitle(challengeRegisterRequestDto.getSubTitle())
-                .category(challengeRegisterRequestDto.getCategory())
-                .description(challengeRegisterRequestDto.getDescription())
-                .totalScore(challengeRegisterRequestDto.getTotalScore())
-                .requiredScore(challengeRegisterRequestDto.getRequiredScore())
-                .level(challengeRegisterRequestDto.getLevel())
-                .problemCount(challengeRegisterRequestDto.getProblemCount())
-                .createDate(LocalDateTime.now())
-                .modifiedDate(LocalDateTime.now())
-                .build();
-
-        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
-
-        for (LectureDto lectureDto : lectureDtoList) {
-            Lecture lecture = Lecture.builder()
-                    .videoUrl(lectureDto.getVideoUrl())
-                    .content(lectureDto.getContent())
-                    .fileUrl(lectureDto.getFileUrl())
-                    .build();
-
-            challenge.addLecture(lecture);
-        }
-
-        List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
-
-        for (ProblemDto problemDto : problemDtoList) {
-            Problem problem = Problem.builder()
-                    .seq(problemDto.getSeq())
-                    .content(problemDto.getContent())
-                    .isMultiple(problemDto.isMultiple())
-                    .answer(problemDto.getAnswer())
-                    .multipleAnswer(problemDto.getMultipleAnswer())
-                    .modifiedDate(LocalDateTime.now())
-                    .build();
-
-            challenge.addProblem(problem);
-
-            List<ChoiceDto> choiceDtoList = problemDto.getChoiceDtoList();
-            for (ChoiceDto choiceDto : choiceDtoList) {
-                Choice choice = Choice.builder()
-                        .seq(choiceDto.getSeq())
-                        .content(choiceDto.getContent())
-                        .build();
-                problem.addChoice(choice);
-            }
-        }
-
+        ChallengeRegisterFacade challengeRegisterFacade = new ChallengeRegisterFacade(challengeRegisterRequestDto);
+        Challenge challenge = challengeRegisterFacade.getChallenge();
         Challenge findChallenge = challengeService.registerChallenge(challenge);
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
