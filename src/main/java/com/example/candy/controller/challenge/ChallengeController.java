@@ -156,7 +156,7 @@ public class ChallengeController {
     @PostMapping("/problem/solve")
     @ApiOperation(value = "문제 풀이")
     public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
-    		@RequestBody @ApiParam ProblemSolvingRequestDto problemSolvingRequestDto) {
+    		@RequestBody @ApiParam(required = true) ProblemSolvingRequestDto problemSolvingRequestDto) {
     	
     	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
@@ -173,7 +173,7 @@ public class ChallengeController {
     @PostMapping("/problem/mark")
     @ApiOperation(value = "문제 채점")
     public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestBody @ApiParam ProblemMarkingRequestDto problemMarkingRequestDto) {
+    		@RequestBody @ApiParam(required = true) ProblemMarkingRequestDto problemMarkingRequestDto) {
     	
     	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
     	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
@@ -186,41 +186,36 @@ public class ChallengeController {
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
     }
     
-    @PostMapping("/video/lecture/register")
-    @ApiOperation(value = "강의 한 개 업로드")
-    public String videoLectureRegister(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestParam("file") @ApiParam MultipartFile file) {
-    	// , @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
+    
+    @PostMapping("/video/lecture/upload")
+    @ApiOperation(value = "강의 업로드")
+    public ApiResult<List<VideoLectureUploadingResponseDto>> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam(required = true) MultipartFile[] files) {
     	
-    	String fileName = fileStorageService.storeFile(file);
+    	ArrayList<VideoLectureUploadingResponseDto> videoLectureUploadingResponseDto = new ArrayList<VideoLectureUploadingResponseDto>();
     	
-    	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-    			.path("/download/")
-    			.path(fileName)
-    			.toUriString();
-    			
-    	return fileDownloadUri;
+    	
+    	for (MultipartFile file : files) {
+    		String videoUrl = fileStorageService.storeFile(file);
+  
+    		videoLectureUploadingResponseDto.add(new VideoLectureUploadingResponseDto(videoUrl));
+    	}
+    	
+    	return ApiResult.OK(videoLectureUploadingResponseDto);
     }
     
-    @PostMapping("/video/lectures/register")
-    @ApiOperation(value = "강의 여러 개 업로드")
-    public List<String> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestParam("file") @ApiParam MultipartFile[] files) {
-    	
-    	//, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
-    	
-    	// , videoLectureRequestDto
-    	
-    	return Arrays.asList(files)
-    		.stream()
-    		.map(file -> videoLectureRegister(authentication, file))
-    		.collect(Collectors.toList());
-    }
-    
-    @GetMapping("/video/lecture/view")
+    @PostMapping("/video/lecture/view")
     @ApiOperation(value = "강의 보기")
     public ResponseEntity<ResourceRegion> getVideo(@AuthenticationPrincipal JwtAuthentication authentication, 
-    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestHeader(value = "FileName", required = true) String fileName) throws IOException {
-    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/", fileName);
+    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestBody @ApiParam(required = true) VideoLectureViewRequestDto videoLectureViewRequestDto) throws IOException {
+    	
+    	Challenge challenge = challengeService.findChallenge(videoLectureViewRequestDto.getChallengeId());
+    	
+    	Lecture lecture = challenge.getLectures().stream()
+    			.filter(lec -> videoLectureViewRequestDto.getLectureId().equals(lec.getId()))
+    			.findAny()
+    			.orElse(null);
+    	
+    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/lecture/", lecture.getVideoUrl());
     }
 }

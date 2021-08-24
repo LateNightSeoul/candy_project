@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
 @Getter
-public class VideoLectureRequestDto {
+public class VideoLectureRegisterRequestDto {
 	@ApiModelProperty(value = "challenge id 값", example = "1")
     private Long challengeId;
 }
