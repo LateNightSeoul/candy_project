@@ -21,9 +21,12 @@ public class CandyController {
     private final CandyHistoryService candyHistoryService;
 
     @GetMapping("/{identity}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "identity", value = "학생 조회 시 student \n 부모 조회 시 parent")
+    })
     @ApiOperation(value = "학생 or 학부모 캔디 보유 수 조회")
     public ApiResult<CandyResponseDto> candyStudent(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                    @PathVariable @ApiParam String identity) {
+                                                    @PathVariable @ApiParam String  identity) {
         return ApiResult.OK(new CandyResponseDto(candyHistoryService.findCandyAmount(authentication.id, identity)));
     }
 

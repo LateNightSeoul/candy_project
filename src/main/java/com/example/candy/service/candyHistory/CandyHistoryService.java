@@ -182,9 +182,9 @@ public class CandyHistoryService {
 
     public int findCandyAmount(Long userId, String candyType) {
         CandyHistory latestCandy = findLatestOne(userId);
-        if (candyType.equals(CandyType.STUDENT)) {
+        if (candyType.equalsIgnoreCase(CandyType.STUDENT.toString())) {
             return latestCandy.getStudentCandy();
-        } else if (candyType.equals(CandyType.PARENT)) {
+        } else if (candyType.equalsIgnoreCase(CandyType.PARENT.toString())) {
             return latestCandy.getParentCandy();
         } else {
             throw new IllegalArgumentException("Not a valid CandyType");
