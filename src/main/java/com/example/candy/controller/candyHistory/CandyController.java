@@ -2,6 +2,7 @@ package com.example.candy.controller.candyHistory;
 
 import com.example.candy.controller.ApiResult;
 import com.example.candy.controller.candyHistory.dto.*;
+import com.example.candy.domain.candy.CandyType;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.candyHistory.CandyHistoryService;
 import io.swagger.annotations.*;
@@ -19,17 +20,14 @@ public class CandyController {
 
     private final CandyHistoryService candyHistoryService;
 
-    @GetMapping("/student")
-    @ApiOperation(value = "학생 캔디 조회")
-    public ApiResult<CandyResponseDto> candyStudent(@AuthenticationPrincipal JwtAuthentication authentication) {
-        System.out.println(authentication);
-        return ApiResult.OK(new CandyResponseDto(candyHistoryService.candyStudent(authentication.id)));
-    }
-
-    @GetMapping("/parent")
-    @ApiOperation(value = "학부모 캔디 조회")
-    public ApiResult<CandyResponseDto> candyParent(@AuthenticationPrincipal JwtAuthentication authentication) {
-        return ApiResult.OK(new CandyResponseDto(candyHistoryService.candyParent(authentication.id)));
+    @GetMapping("/{identity}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "identity", value = "학생 조회 시 student \n 부모 조회 시 parent")
+    })
+    @ApiOperation(value = "학생 or 학부모 캔디 보유 수 조회")
+    public ApiResult<CandyResponseDto> candyStudent(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                    @PathVariable @ApiParam String identity) {
+        return ApiResult.OK(new CandyResponseDto(candyHistoryService.findCandyAmount(authentication.id, identity)));
     }
 
     @PostMapping("/charge")

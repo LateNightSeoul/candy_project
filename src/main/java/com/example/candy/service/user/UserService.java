@@ -1,6 +1,5 @@
 package com.example.candy.service.user;
 
-import com.example.candy.controller.user.dto.ChangeUserInfoRequestDto;
 import com.example.candy.controller.user.dto.UserInfoResponseDto;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
@@ -65,7 +64,7 @@ public class UserService {
 
         User user = findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
-        user.login(passwordEncoder, password);
+        user.verifyPassword(passwordEncoder, password);
         user.afterLoginSuccess();
         return user;
     }
@@ -141,16 +140,20 @@ public class UserService {
         return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
     }
     @Transactional
-    public void changePassword(Long userId, String newPassword) throws NotFoundException {
+    public User changePassword(Long userId, String newPassword, String originPassword) throws NotFoundException {
         checkArgument(
                 newPassword.length() >= 4 && newPassword.length() <= 15,
                 "password length must be between 4 and 15 characters."
         );
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
-        user.setPassword(newPassword);
+        user.verifyPassword(passwordEncoder, originPassword);
+        user.compareNewPassword(passwordEncoder, newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         save(user);
+        return user;
     }
+
 //    
 //    @Transactional
 //    public Boolean password_matches(String email, String password) throws NotFoundException {

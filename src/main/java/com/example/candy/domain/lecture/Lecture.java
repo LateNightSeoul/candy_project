@@ -1,5 +1,6 @@
 package com.example.candy.domain.lecture;
 
+import com.example.candy.controller.challenge.dto.LectureDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.problem.Problem;
 import lombok.*;
@@ -26,4 +27,12 @@ public class Lecture {
     private String content;
 
     private String fileUrl;
+
+    public static Lecture create(LectureDto lectureDto) {
+        return Lecture.builder()
+                .videoUrl(lectureDto.getVideoUrl())
+                .content(lectureDto.getContent())
+                .fileUrl(lectureDto.getFileUrl())
+                .build();
+    }
 }

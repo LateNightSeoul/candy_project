@@ -2,6 +2,7 @@ package com.example.candy.service.candyHistory;
 
 import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
+import com.example.candy.domain.candy.CandyType;
 import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.candy.CandyHistoryDtoRepository;
@@ -179,14 +180,15 @@ public class CandyHistoryService {
         return candyHistoryDtoRepository.findCandyHistory(userId, identity, category, lastCandyHistoryId, size);
     }
 
-    public int candyStudent(Long userId) {
+    public int findCandyAmount(Long userId, String candyType) {
         CandyHistory latestCandy = findLatestOne(userId);
-        return latestCandy.getStudentCandy();
-    }
-
-    public int candyParent(Long userId) {
-        CandyHistory latestCandy = findLatestOne(userId);
-        return latestCandy.getParentCandy();
+        if (candyType.equalsIgnoreCase(CandyType.STUDENT.toString())) {
+            return latestCandy.getStudentCandy();
+        } else if (candyType.equalsIgnoreCase(CandyType.PARENT.toString())) {
+            return latestCandy.getParentCandy();
+        } else {
+            throw new IllegalArgumentException("Not a valid CandyType");
+        }
     }
 
     public CandyHistory findLatestOne(Long userId) { return candyHistoryRepository.findTopByUser_IdOrderByCreateDateDesc(userId); }

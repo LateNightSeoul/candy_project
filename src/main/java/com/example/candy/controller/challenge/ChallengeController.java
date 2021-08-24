@@ -14,17 +14,27 @@ import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
+import com.example.candy.service.storage.FileStorageService;
+import com.example.candy.service.stream.VideoStreamingService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/challenge")
@@ -37,61 +47,17 @@ public class ChallengeController {
     private ChallengeLikeService challengeLikeService;
     @Autowired
     private ChallengeDtoRepository challengeDtoRepository;
-    
+    @Autowired
+    private FileStorageService fileStorageService;
+    @Autowired
+    private VideoStreamingService videoStreamingService;
+
 
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
-
-        Challenge challenge = Challenge.builder()
-                .title(challengeRegisterRequestDto.getTitle())
-                .subTitle(challengeRegisterRequestDto.getSubTitle())
-                .category(challengeRegisterRequestDto.getCategory())
-                .description(challengeRegisterRequestDto.getDescription())
-                .totalScore(challengeRegisterRequestDto.getTotalScore())
-                .requiredScore(challengeRegisterRequestDto.getRequiredScore())
-                .level(challengeRegisterRequestDto.getLevel())
-                .problemCount(challengeRegisterRequestDto.getProblemCount())
-                .createDate(LocalDateTime.now())
-                .modifiedDate(LocalDateTime.now())
-                .build();
-
-        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
-
-        for (LectureDto lectureDto : lectureDtoList) {
-            Lecture lecture = Lecture.builder()
-                    .videoUrl(lectureDto.getVideoUrl())
-                    .content(lectureDto.getContent())
-                    .fileUrl(lectureDto.getFileUrl())
-                    .build();
-
-            challenge.addLecture(lecture);
-        }
-
-        List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
-
-        for (ProblemDto problemDto : problemDtoList) {
-            Problem problem = Problem.builder()
-                    .seq(problemDto.getSeq())
-                    .content(problemDto.getContent())
-                    .isMultiple(problemDto.isMultiple())
-                    .answer(problemDto.getAnswer())
-                    .multipleAnswer(problemDto.getMultipleAnswer())
-                    .modifiedDate(LocalDateTime.now())
-                    .build();
-
-            challenge.addProblem(problem);
-
-            List<ChoiceDto> choiceDtoList = problemDto.getChoiceDtoList();
-            for (ChoiceDto choiceDto : choiceDtoList) {
-                Choice choice = Choice.builder()
-                        .seq(choiceDto.getSeq())
-                        .content(choiceDto.getContent())
-                        .build();
-                problem.addChoice(choice);
-            }
-        }
-
+        ChallengeRegisterFacade challengeRegisterFacade = new ChallengeRegisterFacade(challengeRegisterRequestDto);
+        Challenge challenge = challengeRegisterFacade.getChallenge();
         Challenge findChallenge = challengeService.registerChallenge(challenge);
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
@@ -237,5 +203,43 @@ public class ChallengeController {
     	
     	
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
+    }
+    
+    @PostMapping("/video/lecture/register")
+    @ApiOperation(value = "강의 한 개 업로드")
+    public String videoLectureRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile file) {
+    	// , @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
+    	
+    	String fileName = fileStorageService.storeFile(file);
+    	
+    	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+    			.path("/download/")
+    			.path(fileName)
+    			.toUriString();
+    			
+    	return fileDownloadUri;
+    }
+    
+    @PostMapping("/video/lectures/register")
+    @ApiOperation(value = "강의 여러 개 업로드")
+    public List<String> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile[] files) {
+    	
+    	//, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
+    	
+    	// , videoLectureRequestDto
+    	
+    	return Arrays.asList(files)
+    		.stream()
+    		.map(file -> videoLectureRegister(authentication, file))
+    		.collect(Collectors.toList());
+    }
+    
+    @GetMapping("/video/lecture/view")
+    @ApiOperation(value = "강의 보기")
+    public ResponseEntity<ResourceRegion> getVideo(@AuthenticationPrincipal JwtAuthentication authentication, 
+    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestHeader(value = "FileName", required = true) String fileName) throws IOException {
+    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/", fileName);
     }
 }

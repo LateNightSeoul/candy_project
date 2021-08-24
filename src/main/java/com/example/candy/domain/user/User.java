@@ -60,9 +60,15 @@ public class User {
         return jwt.newToken(claims);
     }
 
-    public void login(PasswordEncoder passwordEncoder, String credentials) {
+    public void verifyPassword(PasswordEncoder passwordEncoder, String credentials) {
         if(!passwordEncoder.matches(credentials, password)) {
             throw new IllegalArgumentException("Bad credential");
+        }
+    }
+
+    public void compareNewPassword(PasswordEncoder passwordEncoder, String newCredentials) {
+        if(passwordEncoder.matches(newCredentials, password)) {
+            throw new IllegalArgumentException("newPassword and originPassword are same");
         }
     }
 

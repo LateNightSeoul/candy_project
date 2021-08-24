@@ -67,7 +67,7 @@ class UserServiceTest {
     @Transactional
     void 비밀번호_변경() throws NotFoundException {
         User user = userService.join(email, true, password, parentPassword, name, phone, birth);
-        userService.changePassword(user.getId(), "abcd");
+        userService.changePassword(user.getId(), "abcd", password);
         User user2 = userService.findById(user.getId()).get();
         assertEquals("abcd", user2.getPassword());
     }

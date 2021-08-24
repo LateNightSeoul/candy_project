@@ -1,5 +1,6 @@
 package com.example.candy.domain.problem;
 
+import com.example.candy.controller.challenge.dto.ProblemDto;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.choice.Choice;
 import lombok.*;
@@ -42,6 +43,17 @@ public class Problem {
     private int multipleCount;
 
     private LocalDateTime modifiedDate;
+
+    public static Problem create(ProblemDto problemDto) {
+        return Problem.builder()
+                .seq(problemDto.getSeq())
+                .content(problemDto.getContent())
+                .isMultiple(problemDto.isMultiple())
+                .answer(problemDto.getAnswer())
+                .multipleAnswer(problemDto.getMultipleAnswer())
+                .modifiedDate(LocalDateTime.now())
+                .build();
+    }
 
     public void addChoice(Choice choice) {
         if (this.choices == null) {
