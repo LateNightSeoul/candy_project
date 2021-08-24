@@ -9,8 +9,8 @@ import com.example.candy.domain.choice.Choice;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.problem.ProblemHistory;
+import com.example.candy.enums.Category;
 import com.example.candy.repository.challenge.ChallengeDtoRepository;
-import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
@@ -51,13 +51,70 @@ public class ChallengeController {
     private FileStorageService fileStorageService;
     @Autowired
     private VideoStreamingService videoStreamingService;
+    
+
+    @GetMapping("category")
+    @ApiOperation(value = "category list")
+    public Category[] categoryList(){
+        Category[] categories = Category.values();
+        return categories;
+    }
+
 
 
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
-        ChallengeRegisterFacade challengeRegisterFacade = new ChallengeRegisterFacade(challengeRegisterRequestDto);
-        Challenge challenge = challengeRegisterFacade.getChallenge();
+
+        Challenge challenge = Challenge.builder()
+                .title(challengeRegisterRequestDto.getTitle())
+                .subTitle(challengeRegisterRequestDto.getSubTitle())
+                .category(challengeRegisterRequestDto.getCategory())
+                .description(challengeRegisterRequestDto.getDescription())
+                .totalScore(challengeRegisterRequestDto.getTotalScore())
+                .requiredScore(challengeRegisterRequestDto.getRequiredScore())
+                .level(challengeRegisterRequestDto.getLevel())
+                .problemCount(challengeRegisterRequestDto.getProblemCount())
+                .createDate(LocalDateTime.now())
+                .modifiedDate(LocalDateTime.now())
+                .build();
+
+        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
+
+        for (LectureDto lectureDto : lectureDtoList) {
+            Lecture lecture = Lecture.builder()
+                    .videoUrl(lectureDto.getVideoUrl())
+                    .content(lectureDto.getContent())
+                    .fileUrl(lectureDto.getFileUrl())
+                    .build();
+
+            challenge.addLecture(lecture);
+        }
+
+        List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
+
+        for (ProblemDto problemDto : problemDtoList) {
+            Problem problem = Problem.builder()
+                    .seq(problemDto.getSeq())
+                    .content(problemDto.getContent())
+                    .isMultiple(problemDto.isMultiple())
+                    .answer(problemDto.getAnswer())
+                    .multipleAnswer(problemDto.getMultipleAnswer())
+                    .modifiedDate(LocalDateTime.now())
+                    .build();
+
+            challenge.addProblem(problem);
+
+            List<ChoiceDto> choiceDtoList = problemDto.getChoiceDtoList();
+            for (ChoiceDto choiceDto : choiceDtoList) {
+                Choice choice = Choice.builder()
+                        .seq(choiceDto.getSeq())
+                        .content(choiceDto.getContent())
+                        .build();
+                problem.addChoice(choice);
+            }
+        }
+
         Challenge findChallenge = challengeService.registerChallenge(challenge);
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
@@ -70,6 +127,9 @@ public class ChallengeController {
         List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id, lastChallengeId, size);
         return ApiResult.OK(challengeDtoList);
     }
+
+
+
 
     @PostMapping("{challengeId}/like")
     @ApiOperation(value = "좋아요 기능")
@@ -87,6 +147,7 @@ public class ChallengeController {
             challengeLikeService.delete(authentication.id, challengeId);
             return ApiResult.OK(0L);
         }
+
     }
 
     @GetMapping("likeList")
@@ -124,6 +185,7 @@ public class ChallengeController {
         }
 
         return ApiResult.OK(myChallengeDtoList);
+
     }
 
     @GetMapping("notCompletedList")
@@ -142,6 +204,7 @@ public class ChallengeController {
                     challenge.getRequiredScore(),challengeHistory.getAssignedCandy(), challengeHistory.isComplete());
             myChallengeDtoList.add(myChallengeDto);
         }
+
         return ApiResult.OK(myChallengeDtoList);
     }
 
@@ -156,14 +219,25 @@ public class ChallengeController {
     @PostMapping("/problem/solve")
     @ApiOperation(value = "문제 풀이")
     public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
-    		@RequestBody @ApiParam(required = true) ProblemSolvingRequestDto problemSolvingRequestDto) {
+    		@RequestBody @ApiParam ProblemSolvingRequestDto problemSolvingRequestDto) {
     	
     	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
         for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
+            
             Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
+        
             ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
-            ProblemHistory problemHistory = ProblemHistory.create(problemSolvingDto, problem, challengeHistory);
+
+            ProblemHistory problemHistory = ProblemHistory.builder()
+            			  .challengeHistory(challengeHistory)	
+            			  .problem(problem)
+            			  .isSuccess(false)
+            			  .isMultiple(problemSolvingDto.isMultiple())
+            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
+            			  .answer(problemSolvingDto.getAnswer())
+            			  .build();
+
             challengeService.solvedProblem(problemHistory);
         }
 
@@ -173,7 +247,7 @@ public class ChallengeController {
     @PostMapping("/problem/mark")
     @ApiOperation(value = "문제 채점")
     public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestBody @ApiParam(required = true) ProblemMarkingRequestDto problemMarkingRequestDto) {
+    		@RequestBody @ApiParam ProblemMarkingRequestDto problemMarkingRequestDto) {
     	
     	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
     	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
@@ -183,39 +257,46 @@ public class ChallengeController {
     		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
     		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
     	}
+    	
+    	
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
     }
     
-    
-    @PostMapping("/video/lecture/upload")
-    @ApiOperation(value = "강의 업로드")
-    public ApiResult<List<VideoLectureUploadingResponseDto>> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestParam("file") @ApiParam(required = true) MultipartFile[] files) {
+    @PostMapping("/video/lecture/register")
+    @ApiOperation(value = "강의 한 개 업로드")
+    public String videoLectureRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile file) {
+    	// , @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
     	
-    	ArrayList<VideoLectureUploadingResponseDto> videoLectureUploadingResponseDto = new ArrayList<VideoLectureUploadingResponseDto>();
+    	String fileName = fileStorageService.storeFile(file);
     	
-    	
-    	for (MultipartFile file : files) {
-    		String videoUrl = fileStorageService.storeFile(file);
-  
-    		videoLectureUploadingResponseDto.add(new VideoLectureUploadingResponseDto(videoUrl));
-    	}
-    	
-    	return ApiResult.OK(videoLectureUploadingResponseDto);
+    	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+    			.path("/download/")
+    			.path(fileName)
+    			.toUriString();
+    			
+    	return fileDownloadUri;
     }
     
-    @PostMapping("/video/lecture/view")
+    @PostMapping("/video/lectures/register")
+    @ApiOperation(value = "강의 여러 개 업로드")
+    public List<String> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam MultipartFile[] files) {
+    	
+    	//, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
+    	
+    	// , videoLectureRequestDto
+    	
+    	return Arrays.asList(files)
+    		.stream()
+    		.map(file -> videoLectureRegister(authentication, file))
+    		.collect(Collectors.toList());
+    }
+    
+    @GetMapping("/video/lecture/view")
     @ApiOperation(value = "강의 보기")
     public ResponseEntity<ResourceRegion> getVideo(@AuthenticationPrincipal JwtAuthentication authentication, 
-    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestBody @ApiParam(required = true) VideoLectureViewRequestDto videoLectureViewRequestDto) throws IOException {
-    	
-    	Challenge challenge = challengeService.findChallenge(videoLectureViewRequestDto.getChallengeId());
-    	
-    	Lecture lecture = challenge.getLectures().stream()
-    			.filter(lec -> videoLectureViewRequestDto.getLectureId().equals(lec.getId()))
-    			.findAny()
-    			.orElse(null);
-    	
-    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/lecture/", lecture.getVideoUrl());
+    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestHeader(value = "FileName", required = true) String fileName) throws IOException {
+    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/", fileName);
     }
 }
