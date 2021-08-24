@@ -1,5 +1,6 @@
 package com.example.candy.domain.challenge;
 
+import com.example.candy.controller.challenge.dto.ChallengeRegisterRequestDto;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
 import com.example.candy.enums.Category;
@@ -50,6 +51,21 @@ public class Challenge {
 
     public Challenge() {
         this.createDate = LocalDateTime.now();
+    }
+
+    public static Challenge create(ChallengeRegisterRequestDto challengeRegisterRequestDto) {
+        return Challenge.builder()
+                .title(challengeRegisterRequestDto.getTitle())
+                .subTitle(challengeRegisterRequestDto.getSubTitle())
+                .category(challengeRegisterRequestDto.getCategory())
+                .description(challengeRegisterRequestDto.getDescription())
+                .totalScore(challengeRegisterRequestDto.getTotalScore())
+                .requiredScore(challengeRegisterRequestDto.getRequiredScore())
+                .level(challengeRegisterRequestDto.getLevel())
+                .problemCount(challengeRegisterRequestDto.getProblemCount())
+                .createDate(LocalDateTime.now())
+                .modifiedDate(LocalDateTime.now())
+                .build();
     }
 
     public void addProblem(Problem problem) {

@@ -1,5 +1,6 @@
 package com.example.candy.domain.choice;
 
+import com.example.candy.controller.challenge.dto.ChoiceDto;
 import com.example.candy.domain.problem.Problem;
 import lombok.*;
 
@@ -23,4 +24,11 @@ public class Choice {
     private int seq;
 
     private String content;
+
+    public static Choice create(ChoiceDto choiceDto) {
+        return builder()
+                .seq(choiceDto.getSeq())
+                .content(choiceDto.getContent())
+                .build();
+    }
 }
