@@ -26,7 +26,7 @@ public class CandyController {
     })
     @ApiOperation(value = "학생 or 학부모 캔디 보유 수 조회")
     public ApiResult<CandyResponseDto> candyStudent(@AuthenticationPrincipal JwtAuthentication authentication,
-                                                    @PathVariable @ApiParam String  identity) {
+                                                    @PathVariable @ApiParam String identity) {
         return ApiResult.OK(new CandyResponseDto(candyHistoryService.findCandyAmount(authentication.id, identity)));
     }
 
