@@ -71,9 +71,6 @@ public class ChallengeController {
         return ApiResult.OK(challengeDtoList);
     }
 
-
-
-
     @PostMapping("{challengeId}/like")
     @ApiOperation(value = "좋아요 기능")
     public ApiResult<Long> like(
@@ -90,7 +87,6 @@ public class ChallengeController {
             challengeLikeService.delete(authentication.id, challengeId);
             return ApiResult.OK(0L);
         }
-
     }
 
     @GetMapping("likeList")
@@ -128,7 +124,6 @@ public class ChallengeController {
         }
 
         return ApiResult.OK(myChallengeDtoList);
-
     }
 
     @GetMapping("notCompletedList")
@@ -147,7 +142,6 @@ public class ChallengeController {
                     challenge.getRequiredScore(),challengeHistory.getAssignedCandy(), challengeHistory.isComplete());
             myChallengeDtoList.add(myChallengeDto);
         }
-
         return ApiResult.OK(myChallengeDtoList);
     }
 
@@ -167,20 +161,9 @@ public class ChallengeController {
     	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
         for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
-            
             Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
-        
             ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
-
-            ProblemHistory problemHistory = ProblemHistory.builder()
-            			  .challengeHistory(challengeHistory)	
-            			  .problem(problem)
-            			  .isSuccess(false)
-            			  .isMultiple(problemSolvingDto.isMultiple())
-            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
-            			  .answer(problemSolvingDto.getAnswer())
-            			  .build();
-
+            ProblemHistory problemHistory = ProblemHistory.create(problemSolvingDto, problem, challengeHistory);
             challengeService.solvedProblem(problemHistory);
         }
 
@@ -200,8 +183,6 @@ public class ChallengeController {
     		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
     		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
     	}
-    	
-    	
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
     }
     

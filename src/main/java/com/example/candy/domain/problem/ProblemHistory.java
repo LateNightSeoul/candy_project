@@ -1,5 +1,6 @@
 package com.example.candy.domain.problem;
 
+import com.example.candy.controller.challenge.dto.ProblemSolvingDto;
 import com.example.candy.domain.challenge.ChallengeHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,5 +38,16 @@ public class ProblemHistory {
     
     private String answer;
     private int multipleAnswer;
+
+    public static ProblemHistory create(ProblemSolvingDto problemSolvingDto, Problem problem, ChallengeHistory challengeHistory) {
+        return ProblemHistory.builder()
+                .isSuccess(false)
+                .isMultiple(problemSolvingDto.isMultiple())
+                .multipleAnswer(problemSolvingDto.getMultipleAnswer())
+                .answer(problemSolvingDto.getAnswer())
+                .problem(problem)
+                .challengeHistory(challengeHistory)
+                .build();
+    }
 
 }
