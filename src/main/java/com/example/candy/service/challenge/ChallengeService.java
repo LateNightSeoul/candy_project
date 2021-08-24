@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -106,9 +107,15 @@ public class ChallengeService {
     	
     	if(problem.isMultiple() == true) {
     		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
+    		
+    		
     	}else {
     		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
     	}
+    	
+    	if(Objects.equals(answerMark, "O")) {
+			problemHistory.setSuccess(true);
+		}
     	
     	return new ProblemMarkingRSDto(answerMark); 
     }

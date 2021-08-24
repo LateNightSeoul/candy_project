@@ -19,7 +19,7 @@ public class FileStorageService {
 	
 	@Autowired
 	public FileStorageService() {
-		this.fileStorageLocation = Paths.get("/Users/hexk0131/")
+		this.fileStorageLocation = Paths.get("/Users/hexk0131/lecture/")
 				.toAbsolutePath().normalize();
 		
 		try {
