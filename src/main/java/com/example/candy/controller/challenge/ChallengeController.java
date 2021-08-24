@@ -161,20 +161,9 @@ public class ChallengeController {
     	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
         for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
-            
             Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
-        
             ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
-
-            ProblemHistory problemHistory = ProblemHistory.builder()
-            			  .challengeHistory(challengeHistory)	
-            			  .problem(problem)
-            			  .isSuccess(false)
-            			  .isMultiple(problemSolvingDto.isMultiple())
-            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
-            			  .answer(problemSolvingDto.getAnswer())
-            			  .build();
-
+            ProblemHistory problemHistory = ProblemHistory.create(problemSolvingDto, problem, challengeHistory);
             challengeService.solvedProblem(problemHistory);
         }
 
