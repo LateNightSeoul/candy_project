@@ -9,8 +9,8 @@ import com.example.candy.domain.choice.Choice;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
 import com.example.candy.domain.problem.ProblemHistory;
+import com.example.candy.enums.Category;
 import com.example.candy.repository.challenge.ChallengeDtoRepository;
-import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
@@ -51,13 +51,46 @@ public class ChallengeController {
     private FileStorageService fileStorageService;
     @Autowired
     private VideoStreamingService videoStreamingService;
+    
+
+    @GetMapping("category")
+    @ApiOperation(value = "category list")
+    public Category[] categoryList(){
+        Category[] categories = Category.values();
+        return categories;
+    }
+
 
 
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
-        ChallengeRegisterFacade challengeRegisterFacade = new ChallengeRegisterFacade(challengeRegisterRequestDto);
-        Challenge challenge = challengeRegisterFacade.getChallenge();
+
+        // challenge 생성
+        Challenge challenge = Challenge.create(challengeRegisterRequestDto);
+
+        // lecture 생성
+        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
+        for (LectureDto lectureDto : lectureDtoList) {
+            Lecture lecture = Lecture.create(lectureDto);
+            challenge.addLecture(lecture);
+        }
+
+        // problem 생성
+        List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
+        for (ProblemDto problemDto : problemDtoList) {
+            Problem problem = Problem.create(problemDto);
+            challenge.addProblem(problem);
+
+            // choice 생성
+            List<ChoiceDto> choiceDtoList = problemDto.getChoiceDtoList();
+            for (ChoiceDto choiceDto : choiceDtoList) {
+                Choice choice = Choice.create(choiceDto);
+                problem.addChoice(choice);
+            }
+        }
+
+        // challenge db에 등록
         Challenge findChallenge = challengeService.registerChallenge(challenge);
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
@@ -70,6 +103,9 @@ public class ChallengeController {
         List<ChallengeDto> challengeDtoList = challengeDtoRepository.findChallenges(authentication.id, lastChallengeId, size);
         return ApiResult.OK(challengeDtoList);
     }
+
+
+
 
     @PostMapping("{challengeId}/like")
     @ApiOperation(value = "좋아요 기능")
@@ -87,6 +123,7 @@ public class ChallengeController {
             challengeLikeService.delete(authentication.id, challengeId);
             return ApiResult.OK(0L);
         }
+
     }
 
     @GetMapping("likeList")
@@ -115,15 +152,9 @@ public class ChallengeController {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
         List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(authentication.id, true,lastChallengeId,size);
 
-        for (ChallengeHistory challengeHistory : challengeHistoryList) {
-            Challenge challenge = challengeHistory.getChallenge();
-            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
-                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
-                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
-            myChallengeDtoList.add(myChallengeDto);
-        }
-
+        completeMyChallengeDtoList(myChallengeDtoList, challengeHistoryList);
         return ApiResult.OK(myChallengeDtoList);
+
     }
 
     @GetMapping("notCompletedList")
@@ -134,15 +165,23 @@ public class ChallengeController {
     ) {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
         List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(authentication.id, false,lastChallengeId,size);
+        completeMyChallengeDtoList(myChallengeDtoList, challengeHistoryList);
 
+        return ApiResult.OK(myChallengeDtoList);
+    }
+
+    private void completeMyChallengeDtoList(List<MyChallengeDto> myChallengeDtoList ,List<ChallengeHistory> challengeHistoryList) {
         for (ChallengeHistory challengeHistory : challengeHistoryList) {
             Challenge challenge = challengeHistory.getChallenge();
-            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
-                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
-                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy(), challengeHistory.isComplete());
+            MyChallengeDto myChallengeDto = createMyChallengeDto(challenge, challengeHistory);
             myChallengeDtoList.add(myChallengeDto);
         }
-        return ApiResult.OK(myChallengeDtoList);
+    }
+
+    private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
+        return new MyChallengeDto(challenge.getId(), challenge.getCategory(),
+                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
+                challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
     }
 
     @GetMapping("/{challengeId}/detail")
@@ -156,14 +195,25 @@ public class ChallengeController {
     @PostMapping("/problem/solve")
     @ApiOperation(value = "문제 풀이")
     public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
-    		@RequestBody @ApiParam ProblemSolvingRequestDto problemSolvingRequestDto) {
+    		@RequestBody @ApiParam(required = true) ProblemSolvingRequestDto problemSolvingRequestDto) {
     	
     	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
 
         for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
+            
             Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
+        
             ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
-            ProblemHistory problemHistory = ProblemHistory.create(problemSolvingDto, problem, challengeHistory);
+
+            ProblemHistory problemHistory = ProblemHistory.builder()
+            			  .challengeHistory(challengeHistory)	
+            			  .problem(problem)
+            			  .isSuccess(false)
+            			  .isMultiple(problemSolvingDto.isMultiple())
+            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
+            			  .answer(problemSolvingDto.getAnswer())
+            			  .build();
+
             challengeService.solvedProblem(problemHistory);
         }
 
@@ -173,7 +223,7 @@ public class ChallengeController {
     @PostMapping("/problem/mark")
     @ApiOperation(value = "문제 채점")
     public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestBody @ApiParam ProblemMarkingRequestDto problemMarkingRequestDto) {
+    		@RequestBody @ApiParam(required = true) ProblemMarkingRequestDto problemMarkingRequestDto) {
     	
     	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
     	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
@@ -183,44 +233,41 @@ public class ChallengeController {
     		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
     		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
     	}
+    	
+    	
     	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
     }
     
-    @PostMapping("/video/lecture/register")
-    @ApiOperation(value = "강의 한 개 업로드")
-    public String videoLectureRegister(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestParam("file") @ApiParam MultipartFile file) {
-    	// , @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
+    
+    @PostMapping("/video/lecture/upload")
+    @ApiOperation(value = "강의 업로드")
+    public ApiResult<List<VideoLectureUploadingResponseDto>> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestParam("file") @ApiParam(required = true) MultipartFile[] files) {
     	
-    	String fileName = fileStorageService.storeFile(file);
+    	ArrayList<VideoLectureUploadingResponseDto> videoLectureUploadingResponseDto = new ArrayList<VideoLectureUploadingResponseDto>();
     	
-    	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-    			.path("/download/")
-    			.path(fileName)
-    			.toUriString();
-    			
-    	return fileDownloadUri;
+    	
+    	for (MultipartFile file : files) {
+    		String videoUrl = fileStorageService.storeFile(file);
+  
+    		videoLectureUploadingResponseDto.add(new VideoLectureUploadingResponseDto(videoUrl));
+    	}
+    	
+    	return ApiResult.OK(videoLectureUploadingResponseDto);
     }
     
-    @PostMapping("/video/lectures/register")
-    @ApiOperation(value = "강의 여러 개 업로드")
-    public List<String> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestParam("file") @ApiParam MultipartFile[] files) {
-    	
-    	//, @RequestBody @ApiParam VideoLectureRequestDto videoLectureRequestDto
-    	
-    	// , videoLectureRequestDto
-    	
-    	return Arrays.asList(files)
-    		.stream()
-    		.map(file -> videoLectureRegister(authentication, file))
-    		.collect(Collectors.toList());
-    }
-    
-    @GetMapping("/video/lecture/view")
+    @PostMapping("/video/lecture/view")
     @ApiOperation(value = "강의 보기")
     public ResponseEntity<ResourceRegion> getVideo(@AuthenticationPrincipal JwtAuthentication authentication, 
-    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestHeader(value = "FileName", required = true) String fileName) throws IOException {
-    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/", fileName);
+    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestBody @ApiParam(required = true) VideoLectureViewRequestDto videoLectureViewRequestDto) throws IOException {
+    	
+    	Challenge challenge = challengeService.findChallenge(videoLectureViewRequestDto.getChallengeId());
+    	
+    	Lecture lecture = challenge.getLectures().stream()
+    			.filter(lec -> videoLectureViewRequestDto.getLectureId().equals(lec.getId()))
+    			.findAny()
+    			.orElse(null);
+    	
+    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/lecture/", lecture.getVideoUrl());
     }
 }

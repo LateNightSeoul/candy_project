@@ -28,32 +28,32 @@ public class CandyHistoryDtoRepository {
         builder.and(candyHistory.user.id.eq(userId));
         builder.and(candyHistory.id.lt(lastCandyHistoryId));
 
-        if (identity == "student") {
-            if (category == "all") {
+        if (identity.equals("student")) {
+            if (category.equals("all")) {
                 builder.andAnyOf(candyHistory.eventType.eq(EventType.valueOf("ATTAIN")),
                             candyHistory.eventType.eq(EventType.valueOf("WITHDRAW")));
-            } else if (category == "attain") {
+            } else if (category.equals("attain")) {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("ATTAIN")));
-            } else if (category == "withdraw") {
+            } else if (category.equals("withdraw")) {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("WITHDRAW")));
             }
-        } else if (identity == "parent") {
-            if (category == "all") {
+        } else if (identity.equals("parent")) {
+            if (category.equals("all")) {
                 builder.andAnyOf(candyHistory.eventType.eq(EventType.valueOf("CHARGE")),
                             candyHistory.eventType.eq(EventType.valueOf("ASSIGN")),
                             candyHistory.eventType.eq(EventType.valueOf("CANCEL")));
-            } else if (category == "charge") {
+            } else if (category.equals("charge")) {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("CHARGE")));
-            } else if (category == "assign") {
+            } else if (category.equals("assign")) {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("ASSIGN")));
-            } else if (category == "cancel") {
+            } else if (category.equals("cancel")) {
                 builder.and(candyHistory.eventType.eq(EventType.valueOf("CANCEL")));
             }
         }
 
         return queryFactory
                 .select(Projections.constructor(CandyHistoryResponseDto.class,
-                        candyHistory.eventType, candyHistory.createDate, candyHistory.amount))
+                        candyHistory.id, candyHistory.eventType, candyHistory.createDate, candyHistory.amount))
                 .from(candyHistory)
                 .where(builder)
                 .orderBy(candyHistory.id.desc())

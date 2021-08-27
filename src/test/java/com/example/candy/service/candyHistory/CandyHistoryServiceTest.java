@@ -2,6 +2,7 @@ package com.example.candy.service.candyHistory;
 
 import com.example.candy.controller.candyHistory.dto.CandyHistoryResponseDto;
 import com.example.candy.domain.candy.CandyHistory;
+import com.example.candy.domain.candy.EventType;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
@@ -165,32 +166,17 @@ class CandyHistoryServiceTest {
         candyHistoryService.attainCandy(user.getId(), challenge1.getId());
         candyHistoryService.withdrawCandy(user.getId(), 10);
         List<CandyHistoryResponseDto> candyAll = candyHistoryService.getCandyHistory(user.getId(), "student", "all", 1000L, 5);
-        System.out.println("******************");
-        for (CandyHistoryResponseDto candy : candyAll) {
-            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
-            + "  candy Event: " + candy.getEventType());
-
-        }
-        System.out.println("******************");
+        assertEquals(candyAll.size(), 2);
+        assertEquals(candyAll.get(0).getEventType(), EventType.WITHDRAW);
 
         List<CandyHistoryResponseDto> candyAll2 = candyHistoryService.getCandyHistory(user.getId(), "student", "attain", 1000L, 5);
-        System.out.println("******************");
-        for (CandyHistoryResponseDto candy : candyAll2) {
-            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
-                    + "  candy Event: " + candy.getEventType());
-
-        }
-        System.out.println("******************");
+        assertEquals(candyAll2.size(), 1);
+        assertEquals(candyAll2.get(0).getEventType(), EventType.ATTAIN);
 
         assertThrows(IllegalArgumentException.class, () -> candyHistoryService.getCandyHistory(user.getId(), "student", "charge", 1000L, 5));
 
         List<CandyHistoryResponseDto> candyAll3 = candyHistoryService.getCandyHistory(user.getId(), "parent", "all", 1000L, 5);
-        System.out.println("******************");
-        for (CandyHistoryResponseDto candy : candyAll3) {
-            System.out.println("candy Amount: " + candy.getAmount() + "  candy Amount: " + candy.getCreateDate()
-                    + "  candy Event: " + candy.getEventType());
-
-        }
-        System.out.println("******************");
+        assertEquals(candyAll3.size(), 4);
+        assertEquals(candyAll3.get(0).getEventType(), EventType.ASSIGN);
     }
 }
