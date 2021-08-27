@@ -10,13 +10,15 @@ import java.time.LocalDateTime;
 @Getter
 public class CandyHistoryResponseDto {
     @Enumerated(EnumType.STRING)
+    private Long id;
     private EventType eventType;
     private LocalDateTime createDate;
     private int amount;
 
     public CandyHistoryResponseDto() {}
 
-    public CandyHistoryResponseDto(EventType eventType, LocalDateTime createDate, int amount) {
+    public CandyHistoryResponseDto(Long id, EventType eventType, LocalDateTime createDate, int amount) {
+        this.id = id;
         this.eventType = eventType;
         this.createDate = createDate;
         this.amount = amount;
