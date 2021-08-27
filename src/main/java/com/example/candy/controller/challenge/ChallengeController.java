@@ -66,55 +66,31 @@ public class ChallengeController {
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
 
-        Challenge challenge = Challenge.builder()
-                .title(challengeRegisterRequestDto.getTitle())
-                .subTitle(challengeRegisterRequestDto.getSubTitle())
-                .category(challengeRegisterRequestDto.getCategory())
-                .description(challengeRegisterRequestDto.getDescription())
-                .totalScore(challengeRegisterRequestDto.getTotalScore())
-                .requiredScore(challengeRegisterRequestDto.getRequiredScore())
-                .level(challengeRegisterRequestDto.getLevel())
-                .problemCount(challengeRegisterRequestDto.getProblemCount())
-                .createDate(LocalDateTime.now())
-                .modifiedDate(LocalDateTime.now())
-                .build();
+        // challenge 생성
+        Challenge challenge = Challenge.create(challengeRegisterRequestDto);
 
+        // lecture 생성
         List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
-
         for (LectureDto lectureDto : lectureDtoList) {
-            Lecture lecture = Lecture.builder()
-                    .videoUrl(lectureDto.getVideoUrl())
-                    .content(lectureDto.getContent())
-                    .fileUrl(lectureDto.getFileUrl())
-                    .build();
-
+            Lecture lecture = Lecture.create(lectureDto);
             challenge.addLecture(lecture);
         }
 
+        // problem 생성
         List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
-
         for (ProblemDto problemDto : problemDtoList) {
-            Problem problem = Problem.builder()
-                    .seq(problemDto.getSeq())
-                    .content(problemDto.getContent())
-                    .isMultiple(problemDto.isMultiple())
-                    .answer(problemDto.getAnswer())
-                    .multipleAnswer(problemDto.getMultipleAnswer())
-                    .modifiedDate(LocalDateTime.now())
-                    .build();
-
+            Problem problem = Problem.create(problemDto);
             challenge.addProblem(problem);
 
+            // choice 생성
             List<ChoiceDto> choiceDtoList = problemDto.getChoiceDtoList();
             for (ChoiceDto choiceDto : choiceDtoList) {
-                Choice choice = Choice.builder()
-                        .seq(choiceDto.getSeq())
-                        .content(choiceDto.getContent())
-                        .build();
+                Choice choice = Choice.create(choiceDto);
                 problem.addChoice(choice);
             }
         }
 
+        // challenge db에 등록
         Challenge findChallenge = challengeService.registerChallenge(challenge);
 
         return ApiResult.OK(new ChallengeRegisterResponseDto(findChallenge));
@@ -176,14 +152,7 @@ public class ChallengeController {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
         List<ChallengeHistory> challengeHistoryList = challengeService.completedChallengeList(authentication.id, true,lastChallengeId,size);
 
-        for (ChallengeHistory challengeHistory : challengeHistoryList) {
-            Challenge challenge = challengeHistory.getChallenge();
-            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
-                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
-                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
-            myChallengeDtoList.add(myChallengeDto);
-        }
-
+        completeMyChallengeDtoList(myChallengeDtoList, challengeHistoryList);
         return ApiResult.OK(myChallengeDtoList);
 
     }
@@ -196,16 +165,23 @@ public class ChallengeController {
     ) {
         List<MyChallengeDto> myChallengeDtoList = new ArrayList<>();
         List<ChallengeHistory> challengeHistoryList = challengeService.notCompletedChallengeList(authentication.id, false,lastChallengeId,size);
-
-        for (ChallengeHistory challengeHistory : challengeHistoryList) {
-            Challenge challenge = challengeHistory.getChallenge();
-            MyChallengeDto myChallengeDto = new MyChallengeDto(challenge.getId(), challenge.getCategory(),
-                    challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
-                    challenge.getRequiredScore(),challengeHistory.getAssignedCandy(), challengeHistory.isComplete());
-            myChallengeDtoList.add(myChallengeDto);
-        }
+        completeMyChallengeDtoList(myChallengeDtoList, challengeHistoryList);
 
         return ApiResult.OK(myChallengeDtoList);
+    }
+
+    private void completeMyChallengeDtoList(List<MyChallengeDto> myChallengeDtoList ,List<ChallengeHistory> challengeHistoryList) {
+        for (ChallengeHistory challengeHistory : challengeHistoryList) {
+            Challenge challenge = challengeHistory.getChallenge();
+            MyChallengeDto myChallengeDto = createMyChallengeDto(challenge, challengeHistory);
+            myChallengeDtoList.add(myChallengeDto);
+        }
+    }
+
+    private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
+        return new MyChallengeDto(challenge.getId(), challenge.getCategory(),
+                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
+                challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
     }
 
     @GetMapping("/{challengeId}/detail")
