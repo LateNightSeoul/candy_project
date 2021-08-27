@@ -163,13 +163,13 @@ public class CandyHistoryService {
     public List<CandyHistoryResponseDto> getCandyHistory(Long userId, String identity, String category, Long lastCandyHistoryId, int size) {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
-
-        if (identity == "student") {
-            if (category != "all" && category != "attain" && category != "withdraw") {
+        System.out.println(identity);
+        if (identity.equals("student")) {
+            if (!category.equals("all") && !category.equals("attain") && !category.equals("withdraw")) {
                 throw new IllegalArgumentException("not a valid category");
             }
-        } else if (identity == "parent") {
-            if (category != "all" && category != "charge" && category != "assign" && category != "cancel") {
+        } else if (identity.equals("parent")) {
+            if (!category.equals("all") && !category.equals("charge") && !category.equals("assign") && !category.equals("cancel")) {
                 throw new IllegalArgumentException("not a valid category");
             }
         } else {
