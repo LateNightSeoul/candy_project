@@ -21,7 +21,6 @@ import java.util.List;
 public class CandyHistoryService {
 
     @Autowired private CandyHistoryRepository candyHistoryRepository;
-    @Autowired private ChallengeHistoryRepository challengeHistoryRepository;
     @Autowired private UserService userService;
     @Autowired private ChallengeService challengeService;
     @Autowired private CandyHistoryDtoRepository candyHistoryDtoRepository;
