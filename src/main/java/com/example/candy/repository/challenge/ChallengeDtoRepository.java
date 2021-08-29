@@ -25,6 +25,7 @@ public class ChallengeDtoRepository {
                         "c.totalScore,c.requiredScore)" +
                         " from Challenge c" +
                         " left join ChallengeHistory ch on c.id = ch.challenge.id" +
+                        " and ch.user.id = :userId" +
                         " left join ChallengeLike cl on c.id = cl.challenge.id" +
                         " and cl.user.id = :userId" +
                         " where c.id < :lastChallengeId" +
