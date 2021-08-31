@@ -5,6 +5,8 @@ import com.example.candy.controller.candyHistory.dto.*;
 import com.example.candy.domain.candy.CandyType;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.candyHistory.CandyHistoryService;
+import com.example.candy.service.challenge.ChallengeLikeService;
+import com.example.candy.service.challenge.ChallengeService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,7 @@ import java.util.List;
 public class CandyController {
 
     private final CandyHistoryService candyHistoryService;
+    private final ChallengeLikeService challengeLikeService;
 
     @GetMapping("/{identity}")
     @ApiImplicitParams({
@@ -55,6 +58,8 @@ public class CandyController {
                                  @RequestBody @ApiParam CandyAssignRequestDto candyAssignRequestDto) {
         candyHistoryService.assignCandy(authentication.id,
                 candyAssignRequestDto.getChallengeId(), candyAssignRequestDto.getCandyAmount());
+        // 캔디 배정하는 순간 찜한 목록에서 제거
+        challengeLikeService.delete(authentication.id, candyAssignRequestDto.getChallengeId());
         return ApiResult.OK(null);
     }
 
