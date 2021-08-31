@@ -86,39 +86,37 @@ public class ChallengeService {
     	
     	OproblemHistory.ifPresentOrElse(CproblemHistory -> {
     		CproblemHistory.setId(OproblemHistory.get().getId());
-    		CproblemHistory.setAnswer(problemHistory.getAnswer());
     		CproblemHistory.setChallengeHistory(problemHistory.getChallengeHistory());
-    		CproblemHistory.setMultiple(problemHistory.isMultiple());
     		CproblemHistory.setSuccess(problemHistory.isSuccess());
     		CproblemHistory.setProblem(problemHistory.getProblem());
-    		CproblemHistory.setMultipleAnswer(problemHistory.getMultipleAnswer());
+            CproblemHistory.setProblemScore(problemHistory.getProblemScore());
     		
     		problemHistoryRepository.save(CproblemHistory);
     	}, () -> {problemHistoryRepository.save(problemHistory);});
     }
     
-    @Transactional
-    public ProblemMarkingRSDto markedProblem(ProblemHistory problemHistory) {
-//    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
-    	String answerMark;
+//     @Transactional
+//     public ProblemMarkingRSDto markedProblem(ProblemHistory problemHistory) {
+// //    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
+//     	String answerMark;
     	
-    	Problem problem = problemRepository.findById(problemHistory.getProblem().getId())
-    			.orElseThrow(() -> new NotFoundException("Problem Not Found"));
+//     	Problem problem = problemRepository.findById(problemHistory.getProblem().getId())
+//     			.orElseThrow(() -> new NotFoundException("Problem Not Found"));
     	
-    	if(problem.isMultiple() == true) {
-    		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
+//     	if(problem.isMultiple() == true) {
+//     		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
     		
     		
-    	}else {
-    		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
-    	}
+//     	}else {
+//     		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
+//     	}
     	
-    	if(Objects.equals(answerMark, "O")) {
-			problemHistory.setSuccess(true);
-		}
+//     	if(Objects.equals(answerMark, "O")) {
+// 			problemHistory.setSuccess(true);
+// 		}
     	
-    	return new ProblemMarkingRSDto(answerMark); 
-    }
+//     	return new ProblemMarkingRSDto(answerMark); 
+//     }
 
 
     public ChallengeHistory assignCandyInChallengeHistory(Long challengeId, int amount, User user) {

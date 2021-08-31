@@ -195,23 +195,21 @@ public class ChallengeController {
     @PostMapping("/problem/solve")
     @ApiOperation(value = "문제 풀이")
     public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
-    		@RequestBody @ApiParam(required = true) ProblemSolvingRequestDto problemSolvingRequestDto) {
+    		@RequestBody @ApiParam(required = true) ProblemSolvedRequestDtoList problemSolvedRequestDtoList) {
     	
-    	List<ProblemSolvingDto> problemSolvingDtoList = problemSolvingRequestDto.getProblemSolvingDtoList();
+    	List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
 
-        for (ProblemSolvingDto problemSolvingDto : problemSolvingDtoList) {
+        for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
             
-            Problem problem = challengeService.findProblem(problemSolvingDto.getProblemId());
+            Problem problem = challengeService.findProblem(problemSolvedDto.getProblemId());
         
-            ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvingDto.getChallengeId(), authentication.id);
+            ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvedDto.getChallengeId(), authentication.id);
 
             ProblemHistory problemHistory = ProblemHistory.builder()
             			  .challengeHistory(challengeHistory)	
             			  .problem(problem)
-            			  .isSuccess(false)
-            			  .isMultiple(problemSolvingDto.isMultiple())
-            			  .multipleAnswer(problemSolvingDto.getMultipleAnswer())
-            			  .answer(problemSolvingDto.getAnswer())
+            			  .isSuccess(true)
+                          .problemScore(problemSolvedDto.getProblemScore())
             			  .build();
 
             challengeService.solvedProblem(problemHistory);
@@ -220,22 +218,29 @@ public class ChallengeController {
     	return ApiResult.OK(null);
     }
     
-    @PostMapping("/problem/mark")
-    @ApiOperation(value = "문제 채점")
-    public ApiResult<ProblemMarkingResponseDto> problemMarking(@AuthenticationPrincipal JwtAuthentication authentication,
-    		@RequestBody @ApiParam(required = true) ProblemMarkingRequestDto problemMarkingRequestDto) {
+    @PostMapping("/problem/return")
+    @ApiOperation(value = "문제 반환")
+    public ApiResult<ProblemResponseDtoList> problemReturning(@AuthenticationPrincipal JwtAuthentication authentication,
+    		@RequestBody @ApiParam(required = true) ProblemRequestDto problemRequestDto) {
     	
-    	List<ProblemMarkingRQDto> problemMarkingRQDtoList = problemMarkingRequestDto.getProblemMarkingRQDto();
-    	List<ProblemMarkingRSDto> problemMarkingRSDtoList = new ArrayList<>();
-    	
-    	for (ProblemMarkingRQDto problemMarkingRQDto : problemMarkingRQDtoList) {
-    		ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemMarkingRQDto.getChallengeId(), authentication.id);
-    		ProblemHistory problemHistory = challengeService.findProblemHistory(challengeHistory.getId(), problemMarkingRQDto.getProblemId());
-    		problemMarkingRSDtoList.add(challengeService.markedProblem(problemHistory));
+
+        Challenge challenge = challengeService.findChallenge(problemRequestDto.getChallengeId());
+
+        List<ChoiceDto> choiceDto = new ArrayList<ChoiceDto>();
+
+        List<ProblemResponseDto> problemResponseDto = new ArrayList<ProblemResponseDto>();
+
+
+    	for (Problem problem : challenge.getProblems()) {
+
+            for (Choice choice : problem.getChoices())
+                choiceDto.add(new ChoiceDto(choice.getSeq(), choice.getContent()));
+
+            problemResponseDto.add(new ProblemResponseDto(choiceDto, problem.getSeq(), problem.getContent(), problem.getScore(), problem.isMultiple(), problem.getMultipleAnswer(), problem.getAnswer(), problem.getMultipleCount(), problem.getModifiedDate()));
     	}
     	
     	
-    	return ApiResult.OK(new ProblemMarkingResponseDto(problemMarkingRSDtoList));
+    	return ApiResult.OK(new ProblemResponseDtoList(problemResponseDto));
     }
     
     
