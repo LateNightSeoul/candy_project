@@ -152,8 +152,8 @@ class CandyHistoryServiceTest {
         challengeService.saveChallenge(challenge);
         candyHistoryService.initCandy(user);
         candyHistoryService.chargeCandy(user.getId(), 80);
-        candyHistoryService.assignCandy(user.getId(), user.getParentPassword(), challenge.getId(), 30);
-        CandyHistory candyHistory = candyHistoryService.cancelCandy(user.getId(), challenge.getId());
+        candyHistoryService.assignCandy(user.getId(),"abcd", challenge.getId(), 30);
+        CandyHistory candyHistory = candyHistoryService.cancelCandy(user.getId(), "abcd", challenge.getId());
         assertEquals(candyHistory.getStudentCandy(), 0);
         assertEquals(candyHistory.getParentCandy(), 80);
         assertEquals(candyHistory.getTotalCandy(), 80);
