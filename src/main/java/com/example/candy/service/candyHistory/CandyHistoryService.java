@@ -10,6 +10,7 @@ import com.example.candy.repository.candy.CandyHistoryRepository;
 import com.example.candy.repository.challenge.ChallengeHistoryRepository;
 import com.example.candy.service.challenge.ChallengeService;
 import com.example.candy.service.user.UserService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,12 +89,11 @@ public class CandyHistoryService {
     }
 
     @Transactional
-    public CandyHistory assignCandy(Long userId, Long challengeId, int amount) {
+    public CandyHistory assignCandy(Long userId, String parentPassword, Long challengeId, int amount) throws NotFoundException {
         if (amount <= 0) {
             throw new IllegalArgumentException("Not valid amount");
         }
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
+        User user = userService.parentLogin(userId, parentPassword);
         CandyHistory latestCandy = findLatestOne(userId);
         if (latestCandy.getParentCandy() < amount) {
             throw new IllegalArgumentException("Not Enough Candy To assign");

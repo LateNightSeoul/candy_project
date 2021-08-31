@@ -8,6 +8,7 @@ import com.example.candy.service.candyHistory.CandyHistoryService;
 import com.example.candy.service.challenge.ChallengeLikeService;
 import com.example.candy.service.challenge.ChallengeService;
 import io.swagger.annotations.*;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +56,8 @@ public class CandyController {
     @PostMapping("/assign")
     @ApiOperation(value = "캔디 배정 (부모 캔디를 챌린지에 배정)")
     public ApiResult assignCandy(@AuthenticationPrincipal JwtAuthentication authentication,
-                                 @RequestBody @ApiParam CandyAssignRequestDto candyAssignRequestDto) {
-        candyHistoryService.assignCandy(authentication.id,
+                                 @RequestBody @ApiParam CandyAssignRequestDto candyAssignRequestDto) throws NotFoundException {
+        candyHistoryService.assignCandy(authentication.id, candyAssignRequestDto.getParentPassword(),
                 candyAssignRequestDto.getChallengeId(), candyAssignRequestDto.getCandyAmount());
         // 캔디 배정하는 순간 찜한 목록에서 제거
         challengeLikeService.delete(authentication.id, candyAssignRequestDto.getChallengeId());

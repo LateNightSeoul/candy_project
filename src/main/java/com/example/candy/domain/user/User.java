@@ -66,6 +66,13 @@ public class User {
         }
     }
 
+    public void verifyParentPassword(PasswordEncoder passwordEncoder, String credentials) {
+        System.out.println(passwordEncoder.encode(credentials) + " " + parentPassword);
+        if(!passwordEncoder.matches(credentials, parentPassword)) {
+            throw new IllegalArgumentException("Bad credential");
+        }
+    }
+
     public void compareNewPassword(PasswordEncoder passwordEncoder, String newCredentials) {
         if(passwordEncoder.matches(newCredentials, password)) {
             throw new IllegalArgumentException("newPassword and originPassword are same");
