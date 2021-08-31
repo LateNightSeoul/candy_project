@@ -68,6 +68,15 @@ public class UserService {
         user.afterLoginSuccess();
         return user;
     }
+
+    @Transactional
+    public User parentLogin(Long userId, String parentPassword) throws NotFoundException {
+        checkArgument(parentPassword != null, "parentPassword must be provided.");
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.verifyParentPassword(passwordEncoder, parentPassword);
+        return user;
+    }
     
     @Transactional
     public String find_email(String name) throws NotFoundException {

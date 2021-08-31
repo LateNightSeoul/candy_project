@@ -8,6 +8,11 @@ import lombok.RequiredArgsConstructor;
 public class CandyCancelRequestDto {
     @ApiModelProperty
     private Long challengeId;
+    @ApiModelProperty(value = "부모 비밀번호")
+    private String parentPassword;
     public CandyCancelRequestDto() {}
-    public CandyCancelRequestDto(Long challengeId) {this.challengeId = challengeId;}
+    public CandyCancelRequestDto(Long challengeId, String parentPassword) {
+        this.challengeId = challengeId;
+        this.parentPassword = parentPassword;
+    }
 }

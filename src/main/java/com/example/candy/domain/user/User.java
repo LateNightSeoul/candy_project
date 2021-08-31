@@ -3,6 +3,7 @@ package com.example.candy.domain.user;
 
 import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.security.Jwt;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<CandyHistory> candyHistories;
 
@@ -35,7 +37,9 @@ public class User {
     private String email;
 
     private String name;
+    @JsonIgnore
     private String password;
+    @JsonIgnore
     private String parentPassword;
     private String phone;
     private String birth;
@@ -62,6 +66,12 @@ public class User {
 
     public void verifyPassword(PasswordEncoder passwordEncoder, String credentials) {
         if(!passwordEncoder.matches(credentials, password)) {
+            throw new IllegalArgumentException("Bad credential");
+        }
+    }
+
+    public void verifyParentPassword(PasswordEncoder passwordEncoder, String credentials) {
+        if(!passwordEncoder.matches(credentials, parentPassword)) {
             throw new IllegalArgumentException("Bad credential");
         }
     }

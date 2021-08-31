@@ -2,10 +2,14 @@ package com.example.candy.controller.candyHistory;
 
 import com.example.candy.controller.ApiResult;
 import com.example.candy.controller.candyHistory.dto.*;
+import com.example.candy.domain.candy.CandyHistory;
 import com.example.candy.domain.candy.CandyType;
 import com.example.candy.security.JwtAuthentication;
 import com.example.candy.service.candyHistory.CandyHistoryService;
+import com.example.candy.service.challenge.ChallengeLikeService;
+import com.example.candy.service.challenge.ChallengeService;
 import io.swagger.annotations.*;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,7 @@ import java.util.List;
 public class CandyController {
 
     private final CandyHistoryService candyHistoryService;
+    private final ChallengeLikeService challengeLikeService;
 
     @GetMapping("/{identity}")
     @ApiImplicitParams({
@@ -52,18 +57,21 @@ public class CandyController {
     @PostMapping("/assign")
     @ApiOperation(value = "캔디 배정 (부모 캔디를 챌린지에 배정)")
     public ApiResult assignCandy(@AuthenticationPrincipal JwtAuthentication authentication,
-                                 @RequestBody @ApiParam CandyAssignRequestDto candyAssignRequestDto) {
-        candyHistoryService.assignCandy(authentication.id,
+                                 @RequestBody @ApiParam CandyAssignRequestDto candyAssignRequestDto) throws NotFoundException {
+        CandyHistory candyHistory = candyHistoryService.assignCandy(authentication.id, candyAssignRequestDto.getParentPassword(),
                 candyAssignRequestDto.getChallengeId(), candyAssignRequestDto.getCandyAmount());
-        return ApiResult.OK(null);
+        // 캔디 배정하는 순간 찜한 목록에서 제거
+        challengeLikeService.delete(authentication.id, candyAssignRequestDto.getChallengeId());
+        return ApiResult.OK(candyHistory);
     }
 
     @PostMapping("/cancel")
     @ApiOperation(value = "캔디 배정 취소 (챌린지에 배정된 캔디 취소)")
     public ApiResult cancelCandy(@AuthenticationPrincipal JwtAuthentication authentication,
-                                 @RequestBody @ApiParam CandyCancelRequestDto candyCancelRequestDto) {
-        candyHistoryService.cancelCandy(authentication.id, candyCancelRequestDto.getChallengeId());
-        return ApiResult.OK(null);
+                                 @RequestBody @ApiParam CandyCancelRequestDto candyCancelRequestDto) throws NotFoundException {
+        CandyHistory candyHistory = candyHistoryService.cancelCandy(authentication.id,
+                candyCancelRequestDto.getParentPassword(), candyCancelRequestDto.getChallengeId());
+        return ApiResult.OK(candyHistory);
     }
 
     @PostMapping("/attain")

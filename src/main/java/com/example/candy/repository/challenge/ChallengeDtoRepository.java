@@ -25,6 +25,7 @@ public class ChallengeDtoRepository {
                         "c.totalScore,c.requiredScore)" +
                         " from Challenge c" +
                         " left join ChallengeHistory ch on c.id = ch.challenge.id" +
+                        " and ch.user.id = :userId" +
                         " left join ChallengeLike cl on c.id = cl.challenge.id" +
                         " and cl.user.id = :userId" +
                         " where c.id < :lastChallengeId" +
@@ -41,7 +42,7 @@ public class ChallengeDtoRepository {
         ChallengeDetailResponseDto challengeDetailResponseDto = em.createQuery(
                 "select new " +
                         "com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto(" +
-                        "c.id, c.title, c.subTitle, ch.assignedCandy, cl.id, c.category, c.description," +
+                        "c.id, c.title, c.subTitle, ch.complete, ch.assignedCandy, cl.id, c.category, c.description," +
                         "c.totalScore, c.requiredScore, c.level, c.problemCount" +
                         ")" +
                         "from Challenge c" +

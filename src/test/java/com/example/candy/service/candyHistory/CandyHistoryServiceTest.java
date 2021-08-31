@@ -7,6 +7,8 @@ import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.user.User;
 import com.example.candy.repository.user.UserRepository;
 import com.example.candy.service.challenge.ChallengeService;
+import com.example.candy.service.user.UserService;
+import javassist.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +29,9 @@ class CandyHistoryServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Autowired private ChallengeService challengeService;
 
     private User user;
@@ -34,15 +39,8 @@ class CandyHistoryServiceTest {
 
     @BeforeAll
     void setUp() {
-        user = User.builder()
-                .email("a@naver.com")
-                .password("1234")
-                .parentPassword("abcd")
-                .name("이해석")
-                .birth("19950302")
-                .phone("01012345678")
-                .build();
-        userRepository.save(user);
+        user = userService.join("a@naver.com", true, "1234", "abcd", "이해석", "01012345678", "19950302");
+
     }
 
     @Test
@@ -88,29 +86,41 @@ class CandyHistoryServiceTest {
 
     @Test
     @Order(4)
-    @DisplayName("with draw candy")
     @Transactional
-    void 캔디_배정() {
+    void 캔디배정() throws NotFoundException {
         Challenge challenge = new Challenge();
         challengeService.saveChallenge(challenge);
         candyHistoryService.initCandy(user);
         candyHistoryService.chargeCandy(user.getId(), 80);
-        CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), "abcd", challenge.getId(), 30);
         assertEquals(candyHistory.getTotalCandy(), 80);
         assertEquals(candyHistory.getParentCandy(), 50);
         assertEquals(candyHistory.getAssignCandy(), 30);
     }
 
     @Test
-    @Order(5)
-    @DisplayName("attian candy")
     @Transactional
-    void 캔디_습득() {
+    void 캔디배정_부모비밀번호오류() throws NotFoundException {
         Challenge challenge = new Challenge();
         challengeService.saveChallenge(challenge);
         candyHistoryService.initCandy(user);
         candyHistoryService.chargeCandy(user.getId(), 80);
-        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        assertThrows(IllegalArgumentException.class, () -> {
+            CandyHistory candyHistory = candyHistoryService.assignCandy(user.getId(), "bcds", challenge.getId(), 30);
+        });
+    }
+
+
+    @Test
+    @Order(5)
+    @DisplayName("attian candy")
+    @Transactional
+    void 캔디_습득() throws NotFoundException {
+        Challenge challenge = new Challenge();
+        challengeService.saveChallenge(challenge);
+        candyHistoryService.initCandy(user);
+        candyHistoryService.chargeCandy(user.getId(), 80);
+        candyHistoryService.assignCandy(user.getId(), user.getParentPassword(), challenge.getId(), 30);
         CandyHistory candyHistory = candyHistoryService.attainCandy(user.getId(), challenge.getId());
         assertEquals(candyHistory.getAssignCandy(), 0);
         assertEquals(candyHistory.getStudentCandy(), 30);
@@ -121,12 +131,12 @@ class CandyHistoryServiceTest {
     @Test
     @Order(6)
     @DisplayName("with draw candy")
-    void 캔디_인출() {
+    void 캔디_인출() throws NotFoundException {
         Challenge challenge = new Challenge();
         challengeService.saveChallenge(challenge);
         candyHistoryService.initCandy(user);
         candyHistoryService.chargeCandy(user.getId(), 80);
-        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
+        candyHistoryService.assignCandy(user.getId(), user.getParentPassword(), challenge.getId(), 30);
         candyHistoryService.attainCandy(user.getId(), challenge.getId());
         CandyHistory candyHistory = candyHistoryService.withdrawCandy(user.getId(), 20);
         assertEquals(candyHistory.getStudentCandy(), 10);
@@ -137,13 +147,13 @@ class CandyHistoryServiceTest {
 
     @Test
     @Order(7)
-    void 캔디_배정취소() {
+    void 캔디_배정취소() throws NotFoundException {
         Challenge challenge = new Challenge();
         challengeService.saveChallenge(challenge);
         candyHistoryService.initCandy(user);
         candyHistoryService.chargeCandy(user.getId(), 80);
-        candyHistoryService.assignCandy(user.getId(), challenge.getId(), 30);
-        CandyHistory candyHistory = candyHistoryService.cancelCandy(user.getId(), challenge.getId());
+        candyHistoryService.assignCandy(user.getId(),"abcd", challenge.getId(), 30);
+        CandyHistory candyHistory = candyHistoryService.cancelCandy(user.getId(), "abcd", challenge.getId());
         assertEquals(candyHistory.getStudentCandy(), 0);
         assertEquals(candyHistory.getParentCandy(), 80);
         assertEquals(candyHistory.getTotalCandy(), 80);
@@ -153,7 +163,7 @@ class CandyHistoryServiceTest {
     @Test
     @Transactional
     @Order(8)
-    void 캔디내역_조회_학생_all() {
+    void 캔디내역_조회_학생_all() throws NotFoundException {
         candyHistoryService.initCandy(user);
         CandyHistory candyHistory = candyHistoryService.chargeCandy(user.getId(), 50);
         CandyHistory candyHistory2 = candyHistoryService.chargeCandy(user.getId(), 30);
@@ -162,7 +172,7 @@ class CandyHistoryServiceTest {
                 .title("rap")
                 .build();
         Challenge challenge1 = challengeService.saveChallenge(challenge);
-        candyHistoryService.assignCandy(user.getId(), challenge1.getId(), 10);
+        candyHistoryService.assignCandy(user.getId(), user.getParentPassword(), challenge1.getId(), 10);
         candyHistoryService.attainCandy(user.getId(), challenge1.getId());
         candyHistoryService.withdrawCandy(user.getId(), 10);
         List<CandyHistoryResponseDto> candyAll = candyHistoryService.getCandyHistory(user.getId(), "student", "all", 1000L, 5);
