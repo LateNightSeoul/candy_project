@@ -115,9 +115,8 @@ public class CandyHistoryService {
     }
 
     @Transactional
-    public CandyHistory cancelCandy(Long userId, Long challengeId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("No Such UserId"));
+    public CandyHistory cancelCandy(Long userId, String parentPassword, Long challengeId) throws NotFoundException {
+        User user = userService.parentLogin(userId, parentPassword);
         int candyAmount = challengeService.cancelCandyAndGetCandyAmount(userId, challengeId);
         CandyHistory latestCandy = findLatestOne(userId);
 

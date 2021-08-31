@@ -72,7 +72,6 @@ public class UserService {
     @Transactional
     public User parentLogin(Long userId, String parentPassword) throws NotFoundException {
         checkArgument(parentPassword != null, "parentPassword must be provided.");
-        System.out.println(parentPassword);
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         user.verifyParentPassword(passwordEncoder, parentPassword);

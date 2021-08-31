@@ -67,7 +67,6 @@ public class User {
     }
 
     public void verifyParentPassword(PasswordEncoder passwordEncoder, String credentials) {
-        System.out.println(passwordEncoder.encode(credentials) + " " + parentPassword);
         if(!passwordEncoder.matches(credentials, parentPassword)) {
             throw new IllegalArgumentException("Bad credential");
         }
