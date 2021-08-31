@@ -106,7 +106,7 @@ public class CandyHistoryService {
                 .totalCandy(latestCandy.getTotalCandy())
                 .parentCandy(latestCandy.getParentCandy() - amount)
                 .studentCandy(latestCandy.getStudentCandy())
-                .assignCandy(amount)
+                .assignCandy(latestCandy.getAssignCandy() + amount)
                 .amount(amount)
                 .createDate(LocalDateTime.now())
                 .user(user)
