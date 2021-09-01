@@ -236,7 +236,7 @@ public class ChallengeController {
             for (Choice choice : problem.getChoices())
                 choiceDto.add(new ChoiceDto(choice.getSeq(), choice.getContent()));
 
-            problemResponseDto.add(new ProblemResponseDto(choiceDto, problem.getSeq(), problem.getContent(), problem.getScore(), problem.isMultiple(), problem.getMultipleAnswer(), problem.getAnswer(), problem.getMultipleCount(), problem.getModifiedDate()));
+            problemResponseDto.add(new ProblemResponseDto(choiceDto, problem.getSeq(), problem.getQuestion(), problem.getContent(), problem.getScore(), problem.isMultiple(), problem.getMultipleAnswer(), problem.getAnswer(), problem.getMultipleCount(), problem.getModifiedDate()));
     	}
     	
     	

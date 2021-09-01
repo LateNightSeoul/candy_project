@@ -30,6 +30,8 @@ public class Problem {
 
     private int seq;
 
+    private String question;
+
     private String content;
 
     private int score;
@@ -47,6 +49,7 @@ public class Problem {
     public static Problem create(ProblemDto problemDto) {
         return Problem.builder()
                 .seq(problemDto.getSeq())
+                .question(problemDto.getQuestion())
                 .content(problemDto.getContent())
                 .isMultiple(problemDto.isMultiple())
                 .answer(problemDto.getAnswer())

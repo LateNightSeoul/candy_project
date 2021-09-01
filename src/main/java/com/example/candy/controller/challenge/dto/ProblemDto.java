@@ -16,7 +16,10 @@ public class ProblemDto {
     @ApiModelProperty(value = "문제 번호", example = "1")
     private int seq;
 
-    @ApiModelProperty(value = "문제 내용", example = "빈칸에 들어갈 알맞은 단어는?")
+    @ApiModelProperty(value = "문제 질문", example = "빈칸에 들어갈 알맞은 단어는?")
+    private String question;
+
+    @ApiModelProperty(value = "문제 내용", example = "one has much to put into them, a day has a hundred pockets.")
     private String content;
 
     @ApiModelProperty(value = "문제에 배정된 점수", example = "10")
