@@ -179,7 +179,7 @@ public class ChallengeController {
     }
 
     private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
-        return new MyChallengeDto(challenge.getId(), challenge.getCategory(),
+        return new MyChallengeDto(challenge.getId(), challenge.getLectures(), challenge.getCategory(),
                 challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
                 challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
     }

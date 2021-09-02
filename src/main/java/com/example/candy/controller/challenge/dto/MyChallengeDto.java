@@ -1,15 +1,19 @@
 package com.example.candy.controller.challenge.dto;
-
+import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.enums.Category;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter @Setter
 public class MyChallengeDto {
 
-    @ApiModelProperty(value = "id값", example = "1")
-    private Long id;
+    @ApiModelProperty(value = "챌린지 id값", example = "1")
+    private Long challengeId;
+    @ApiModelProperty(value = "강의 id값", example = "1")
+    private List<Long> lecturesId;
     @ApiModelProperty(value = "과목명(KOREAN, ENGLISH, MATH)" ,example = "KOREAN")
     private Category category;
     @ApiModelProperty(value = "제목", example = "5형식")
@@ -25,8 +29,15 @@ public class MyChallengeDto {
     @ApiModelProperty(value = "완료 여부", example = "true")
     private boolean complete;
 
-    public MyChallengeDto(Long id, Category category, String title, String subTitle, int totalScore, int requiredScore, int assignedCandy ,boolean complete) {
-        this.id = id;
+    public MyChallengeDto(Long challengeId, List<Lecture> lectures, Category category, String title, String subTitle, int totalScore, int requiredScore, int assignedCandy ,boolean complete) {
+        this.challengeId = challengeId;
+        
+        List<Long> lecturesId = new ArrayList<>();
+            
+        for (Lecture lecture : lectures)
+            lecturesId.add(lecture.getId());
+        
+        this.lecturesId = lecturesId;
         this.category = category;
         this.title = title;
         this.subTitle = subTitle;
