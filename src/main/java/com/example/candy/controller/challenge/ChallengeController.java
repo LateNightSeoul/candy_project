@@ -60,8 +60,6 @@ public class ChallengeController {
         return categories;
     }
 
-
-
     @PostMapping("/register")
     @ApiOperation(value = "챌린지 등록")
     public ApiResult<ChallengeRegisterResponseDto> register(@RequestBody @ApiParam ChallengeRegisterRequestDto challengeRegisterRequestDto) {
@@ -260,19 +258,28 @@ public class ChallengeController {
     	
     	return ApiResult.OK(videoLectureUploadingResponseDto);
     }
+
+    @PostMapping("/video/lecture/check")
+    @ApiOperation(value = "강의 조회")
+    public VideoLectureCheckResponseDto getVideoUrl(@RequestBody @ApiParam(required = true) VideoLectureCheckRequestDto videoLectureCheckRequestDto) throws IOException {
+    	
+    	Challenge challenge = challengeService.findChallenge(videoLectureCheckRequestDto.getChallengeId());
+    	
+    	List<Lecture> lectures = challenge.getLectures();
+    			
+        List<String> lecturesUrl = new ArrayList<>();
+
+        for (Lecture lecture : lectures)
+            lecturesUrl.add(lecture.getVideoUrl());
+    	
+    	return new VideoLectureCheckResponseDto(lecturesUrl);
+    }
     
-    @PostMapping("/video/lecture/view")
+    @GetMapping("/video/lecture/view")
     @ApiOperation(value = "강의 보기")
-    public ResponseEntity<ResourceRegion> getVideo(@AuthenticationPrincipal JwtAuthentication authentication, 
-    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestBody @ApiParam(required = true) VideoLectureViewRequestDto videoLectureViewRequestDto) throws IOException {
+    public ResponseEntity<ResourceRegion> getVideo( 
+    		@RequestHeader(value = "Range", required = false) String rangeHeader, @RequestParam @ApiParam(required = true) String video_url) throws IOException {
     	
-    	Challenge challenge = challengeService.findChallenge(videoLectureViewRequestDto.getChallengeId());
-    	
-    	Lecture lecture = challenge.getLectures().stream()
-    			.filter(lec -> videoLectureViewRequestDto.getLectureId().equals(lec.getId()))
-    			.findAny()
-    			.orElse(null);
-    	
-    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/lecture/", lecture.getVideoUrl());
+    	return videoStreamingService.getVideoRegion(rangeHeader, "/Users/hexk0131/lecture/", video_url);
     }
 }
