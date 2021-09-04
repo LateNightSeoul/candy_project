@@ -51,6 +51,7 @@ public class Problem {
                 .seq(problemDto.getSeq())
                 .question(problemDto.getQuestion())
                 .content(problemDto.getContent())
+                .score(problemDto.getScore())
                 .isMultiple(problemDto.isMultiple())
                 .answer(problemDto.getAnswer())
                 .multipleAnswer(problemDto.getMultipleAnswer())
