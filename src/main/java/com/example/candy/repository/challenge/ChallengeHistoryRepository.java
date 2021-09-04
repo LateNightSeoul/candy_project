@@ -14,5 +14,5 @@ import java.util.Optional;
 @Repository
 public interface ChallengeHistoryRepository extends JpaRepository<ChallengeHistory, Long>, ChallengeHistoryCustomRepository {
     Optional<ChallengeHistory> findByChallenge_idAndUser_id(Long challengeId, Long userId);
-    Page<ChallengeHistory> findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(User user, boolean complete,Long lastChallengeId, Pageable pageable);
+    Page<ChallengeHistory> findByUserAndCompleteAndProgressAndChallenge_idLessThanOrderByChallenge_idDesc(User user, boolean complete,boolean progress, Long lastChallengeId, Pageable pageable);
 }
