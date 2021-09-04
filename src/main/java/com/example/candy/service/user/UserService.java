@@ -148,6 +148,21 @@ public class UserService {
         User savedUser = save(user);
         return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
     }
+
+    @Transactional
+    public User changeParentPassword(Long userId, String newParentPassword, String originParentPassword) throws NotFoundException {
+        checkArgument(
+                newParentPassword.length() >= 4 && newParentPassword.length() <= 15,
+                "parentPassword length must be between 4 and 15 characters."
+        );
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.verifyParentPassword(passwordEncoder, originParentPassword);
+        user.compareNewPassword(passwordEncoder, newParentPassword);
+        user.setParentPassword(passwordEncoder.encode(newParentPassword));
+        return save(user);
+    }
+
     @Transactional
     public User changePassword(Long userId, String newPassword, String originPassword) throws NotFoundException {
         checkArgument(
@@ -159,8 +174,7 @@ public class UserService {
         user.verifyPassword(passwordEncoder, originPassword);
         user.compareNewPassword(passwordEncoder, newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        save(user);
-        return user;
+        return save(user);
     }
 
 //    
