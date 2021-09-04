@@ -119,16 +119,31 @@ public class UserService {
     @Transactional
     public Boolean new_pw(String email, String password) throws NotFoundException {
  
-    	User user = findByEmail(email)
-    			.orElseThrow(() -> new NotFoundException("User Not Found"));
-    	
-    	
-    	if(user.isAuth() == true) {
-    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
-    		return true;
-    	} else {
-    		return false;
-    	}
+        User user = findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        
+        if(user.isAuth() == true) {
+            user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+            user.setAuth(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public Boolean new_second_pw(String email, String parent_password) throws NotFoundException {
+ 
+        User user = findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        
+        if(user.isAuth() == true) {
+            user.setParentPassword(new BCryptPasswordEncoder().encode(parent_password).toString());
+            user.setAuth(false);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public UserInfoResponseDto getUserInfo(Long userId) throws NotFoundException {
