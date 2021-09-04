@@ -17,6 +17,9 @@ public class ProblemResponseDto {
 	@ApiModelProperty(value = "보기 등록")
     private List<ChoiceDto> choiceDtoList;
 
+	@ApiModelProperty(value = "problemId", example = "proble/solve 시 해당 정보를 꼭 맞게 입력해야 합니다.")
+	private Long problemId;
+
     @ApiModelProperty(value = "문제 번호", example = "1")
     private int seq;
 
