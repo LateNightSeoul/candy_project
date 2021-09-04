@@ -85,7 +85,9 @@ public class ChallengeService {
         List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
         List<Problem> problemList = findProblemByChallengeId(problemSolvedRequestDtoList.getChallengeId());
         Map<Long, Problem> problemMap = Problem.listToMap(problemList);
+
         int totalScore = 0;
+        challengeHistory.setTryCount(challengeHistory.getTryCount() + 1);
 
         for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
             if (!problemMap.containsKey(problemSolvedDto.getProblemId())) {
@@ -99,6 +101,7 @@ public class ChallengeService {
                     .problem(problemMap.get(problemSolvedDto.getProblemId()))
                     .isSuccess(problemSolvedDto.getProblemScore() > 0)
                     .problemScore(problemSolvedDto.getProblemScore())
+                    .version(challengeHistory.getTryCount())
                     .build();
             totalScore += problemSolvedDto.getProblemScore();
             solvedProblem(problemHistory);

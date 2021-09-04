@@ -243,7 +243,7 @@ public class ChallengeController {
     	Lecture lecture = challenge.getLecture();
 
         String lectureUrl = lecture.getVideoUrl();
-        
+
     	return new VideoLectureCheckResponseDto(lectureUrl);
     }
     

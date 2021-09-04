@@ -33,6 +33,7 @@ public class ProblemHistory {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
+    private int version;
     private boolean isSuccess;
     private boolean isMultiple;
     
