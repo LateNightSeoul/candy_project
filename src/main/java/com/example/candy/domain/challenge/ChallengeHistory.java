@@ -41,6 +41,15 @@ public class ChallengeHistory {
     private LocalDateTime createDate;
     private LocalDateTime modifiedDate;
 
+    public int saveScore(int score) {
+        if (this.score >= score) {
+            return this.score;
+        } else {
+            this.score = score;
+            return score;
+        }
+    }
+
     public ChallengeHistory(User user, Challenge challenge, int assignedCandy) {
         this.user = user;
         this.challenge = challenge;
@@ -50,5 +59,4 @@ public class ChallengeHistory {
         this.tryCount = 0;
         this.createDate = LocalDateTime.now();
     }
-
 }

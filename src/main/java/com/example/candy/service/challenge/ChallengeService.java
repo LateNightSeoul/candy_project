@@ -2,6 +2,8 @@ package com.example.candy.service.challenge;
 
 import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
 import com.example.candy.controller.challenge.dto.ProblemMarkingRSDto;
+import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDto;
+import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDtoList;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
 import com.example.candy.domain.problem.Problem;
@@ -24,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ChallengeService {
@@ -78,6 +77,35 @@ public class ChallengeService {
     @Transactional
     public Challenge registerChallenge(Challenge challenge) {
         return challengeRepository.save(challenge);
+    }
+
+    @Transactional
+    public int grading(Long userId, ProblemSolvedRequestDtoList problemSolvedRequestDtoList) {
+        ChallengeHistory challengeHistory = findChallengeHistory(problemSolvedRequestDtoList.getChallengeId(), userId);
+        List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
+        List<Problem> problemList = findProblemByChallengeId(problemSolvedRequestDtoList.getChallengeId());
+        Map<Long, Problem> problemMap = Problem.listToMap(problemList);
+        int totalScore = 0;
+
+        for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
+            if (!problemMap.containsKey(problemSolvedDto.getProblemId())) {
+                throw new IllegalStateException("Not Exist problemId");
+            }
+            if (problemSolvedDto.getProblemScore() == null) {
+                throw new IllegalStateException("Need Problem Score");
+            }
+            ProblemHistory problemHistory = ProblemHistory.builder()
+                    .challengeHistory(challengeHistory)
+                    .problem(problemMap.get(problemSolvedDto.getProblemId()))
+                    .isSuccess(problemSolvedDto.getProblemScore() > 0)
+                    .problemScore(problemSolvedDto.getProblemScore())
+                    .build();
+            totalScore += problemSolvedDto.getProblemScore();
+            solvedProblem(problemHistory);
+        }
+        int highestScore = challengeHistory.saveScore(totalScore);
+        saveChallengeHistory(challengeHistory);
+        return totalScore;
     }
 
     @Transactional
@@ -134,6 +162,7 @@ public class ChallengeService {
             challengeHistory = new ChallengeHistory(user, findChallenge, amount);
         }
         challengeHistory.setProgress(true);
+        challengeHistory.setScore(0);
         return saveChallengeHistory(challengeHistory);
     }
 
@@ -194,6 +223,10 @@ public class ChallengeService {
 
         return problem;
     }
+
+    public List<Problem> findProblemByChallengeId(Long challengeId) {
+        return problemRepository.findByChallenge_Id(challengeId);
+    }
     
     public ProblemHistory findProblemHistory(Long challengeHistoryId, Long problemId) {
     	ProblemHistory problemHistory = problemHistoryRepository.findByChallengeHistory_idAndProblem_id(challengeHistoryId, problemId)
@@ -214,6 +247,12 @@ public class ChallengeService {
     			.orElseThrow(() -> new NotFoundException("Challenge Not Found"));
     	
     	return challenge;
+    }
+
+    public int findScore(Long challengeId, Long userId) {
+        ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
+                .orElseThrow(() -> new NotFoundException("Challenge History Not Found"));
+        return challengeHistory.getScore();
     }
 
     public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {

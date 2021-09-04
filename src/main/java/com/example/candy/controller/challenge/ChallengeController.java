@@ -189,55 +189,40 @@ public class ChallengeController {
         ChallengeDetailResponseDto challengeDetail = challengeService.findChallengeDetail(authentication.id, challengeId);
         return ApiResult.OK(challengeDetail);
     }
+
+    @GetMapping("/score/{challengeId}")
+    @ApiOperation(value = "챌린지 점수 조회 (역대 기록 중 가장 높은 점수 반환)")
+    public ApiResult<ChallengeScoreResponseDto> getScore(@AuthenticationPrincipal JwtAuthentication authentication,
+                                @PathVariable @ApiParam Long challengeId) {
+        int score = challengeService.findScore(challengeId, authentication.id);
+        return ApiResult.OK(new ChallengeScoreResponseDto(score));
+    }
     
     @PostMapping("/problem/solve")
     @ApiOperation(value = "문제 풀이")
-    public ApiResult<List<ProblemSolvingResponseDto>> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,				
+    public ApiResult<ProblemSolvingResponseDto> problemSolving(@AuthenticationPrincipal JwtAuthentication authentication,
     		@RequestBody @ApiParam(required = true) ProblemSolvedRequestDtoList problemSolvedRequestDtoList) {
-    	
-    	List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
+        int totalScore = challengeService.grading(authentication.id, problemSolvedRequestDtoList);
 
-        for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
-            
-            Problem problem = challengeService.findProblem(problemSolvedDto.getProblemId());
-        
-            ChallengeHistory challengeHistory = challengeService.findChallengeHistory(problemSolvedDto.getChallengeId(), authentication.id);
-
-            ProblemHistory problemHistory = ProblemHistory.builder()
-            			  .challengeHistory(challengeHistory)	
-            			  .problem(problem)
-            			  .isSuccess(true)
-                          .problemScore(problemSolvedDto.getProblemScore())
-            			  .build();
-
-            challengeService.solvedProblem(problemHistory);
-        }
-
-    	return ApiResult.OK(null);
+        return ApiResult.OK(new ProblemSolvingResponseDto(authentication.id, totalScore));
     }
     
     @PostMapping("/problem/return")
     @ApiOperation(value = "문제 반환")
     public ApiResult<ProblemResponseDtoList> problemReturning(@AuthenticationPrincipal JwtAuthentication authentication,
     		@RequestBody @ApiParam(required = true) ProblemRequestDto problemRequestDto) {
-    	
 
         Challenge challenge = challengeService.findChallenge(problemRequestDto.getChallengeId());
-
-        List<ChoiceDto> choiceDto = new ArrayList<ChoiceDto>();
-
         List<ProblemResponseDto> problemResponseDto = new ArrayList<ProblemResponseDto>();
 
-
     	for (Problem problem : challenge.getProblems()) {
-
-            for (Choice choice : problem.getChoices())
+            List<ChoiceDto> choiceDto = new ArrayList<ChoiceDto>();
+            for (Choice choice : problem.getChoices()) {
                 choiceDto.add(new ChoiceDto(choice.getSeq(), choice.getContent()));
-
-            problemResponseDto.add(new ProblemResponseDto(choiceDto, problem.getSeq(), problem.getQuestion(), problem.getContent(), problem.getScore(), problem.isMultiple(), problem.getMultipleAnswer(), problem.getAnswer(), problem.getMultipleCount(), problem.getModifiedDate()));
+            }
+            problemResponseDto.add(new ProblemResponseDto(choiceDto, problem.getId(), problem.getSeq(), problem.getQuestion(), problem.getContent(), problem.getScore(), problem.isMultiple(), problem.getMultipleAnswer(), problem.getAnswer(), problem.getMultipleCount(), problem.getModifiedDate()));
     	}
-    	
-    	
+
     	return ApiResult.OK(new ProblemResponseDtoList(problemResponseDto));
     }
     
@@ -246,13 +231,10 @@ public class ChallengeController {
     @ApiOperation(value = "강의 업로드")
     public ApiResult<List<VideoLectureUploadingResponseDto>> videoLecturesRegister(@AuthenticationPrincipal JwtAuthentication authentication,
     		@RequestParam("file") @ApiParam(required = true) MultipartFile[] files) {
-    	
     	ArrayList<VideoLectureUploadingResponseDto> videoLectureUploadingResponseDto = new ArrayList<VideoLectureUploadingResponseDto>();
-    	
-    	
+
     	for (MultipartFile file : files) {
     		String videoUrl = fileStorageService.storeFile(file);
-  
     		videoLectureUploadingResponseDto.add(new VideoLectureUploadingResponseDto(videoUrl));
     	}
     	
@@ -262,13 +244,9 @@ public class ChallengeController {
     @PostMapping("/video/lecture/check")
     @ApiOperation(value = "강의 조회")
     public VideoLectureCheckResponseDto getVideoUrl(@RequestBody @ApiParam(required = true) VideoLectureCheckRequestDto videoLectureCheckRequestDto) throws IOException {
-    	
     	Challenge challenge = challengeService.findChallenge(videoLectureCheckRequestDto.getChallengeId());
-    	
     	List<Lecture> lectures = challenge.getLectures();
-    			
         List<String> lecturesUrl = new ArrayList<>();
-
         for (Lecture lecture : lectures)
             lecturesUrl.add(lecture.getVideoUrl());
     	

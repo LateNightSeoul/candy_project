@@ -8,7 +8,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter @Setter
@@ -57,6 +59,14 @@ public class Problem {
                 .multipleAnswer(problemDto.getMultipleAnswer())
                 .modifiedDate(LocalDateTime.now())
                 .build();
+    }
+
+    public static Map<Long, Problem> listToMap(List<Problem> problemList) {
+        Map<Long, Problem> map = new HashMap<>();
+        for (int i = 0; i < problemList.size(); i++) {
+            map.put(problemList.get(i).id, problemList.get(i));
+        }
+        return map;
     }
 
     public void addChoice(Choice choice) {
