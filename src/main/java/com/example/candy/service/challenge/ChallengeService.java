@@ -172,7 +172,7 @@ public class ChallengeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
-        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, true, lastChallengeId, pageRequest);
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndProgressAndChallenge_idLessThanOrderByChallenge_idDesc(user, true, false,lastChallengeId, pageRequest);
         List<ChallengeHistory> challengeHistoryList = page.getContent();
         return challengeHistoryList;
     }
@@ -183,7 +183,7 @@ public class ChallengeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
-        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, false, lastChallengeId, pageRequest);
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndProgressAndChallenge_idLessThanOrderByChallenge_idDesc(user, false, true,lastChallengeId, pageRequest);
         List<ChallengeHistory> challengeHistoryList = page.getContent();
         return challengeHistoryList;
     }
