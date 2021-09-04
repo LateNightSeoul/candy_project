@@ -24,17 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/challenge")
@@ -68,11 +64,9 @@ public class ChallengeController {
         Challenge challenge = Challenge.create(challengeRegisterRequestDto);
 
         // lecture 생성
-        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
-        for (LectureDto lectureDto : lectureDtoList) {
-            Lecture lecture = Lecture.create(lectureDto);
-            challenge.addLecture(lecture);
-        }
+        LectureDto lectureDto = challengeRegisterRequestDto.getLectureDto();
+        Lecture lecture = Lecture.create(lectureDto);
+        challenge.addLecture(lecture);
 
         // problem 생성
         List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
@@ -135,7 +129,7 @@ public class ChallengeController {
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
-                    challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore());
+                    challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore(),challenge.getLecture().getId());
             challengeDtoList.add(challengeDto);
         }
         return ApiResult.OK(challengeDtoList);
@@ -177,7 +171,7 @@ public class ChallengeController {
     }
 
     private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
-        return new MyChallengeDto(challenge.getId(), challenge.getLectures(), challenge.getCategory(),
+        return new MyChallengeDto(challenge.getId(), challenge.getLecture().getId(), challenge.getCategory(),
                 challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
                 challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
     }
@@ -265,14 +259,12 @@ public class ChallengeController {
     	
     	Challenge challenge = challengeService.findChallenge(videoLectureCheckRequestDto.getChallengeId());
     	
-    	List<Lecture> lectures = challenge.getLectures();
-    			
-        List<String> lecturesUrl = new ArrayList<>();
+    	Lecture lecture = challenge.getLecture();
 
-        for (Lecture lecture : lectures)
-            lecturesUrl.add(lecture.getVideoUrl());
+        String lectureUrl = lecture.getVideoUrl();
+
     	
-    	return new VideoLectureCheckResponseDto(lecturesUrl);
+    	return new VideoLectureCheckResponseDto(lectureUrl);
     }
     
     @GetMapping("/video/lecture/view")

@@ -25,8 +25,8 @@ public class Challenge {
     @OneToMany(mappedBy = "challenge", fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     private List<Problem> problems;
 
-    @OneToMany(mappedBy = "challenge", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<Lecture> lectures;
+    @OneToOne(mappedBy = "challenge", cascade = CascadeType.PERSIST)
+    private Lecture lecture;
 
     private String title;
 
@@ -77,10 +77,7 @@ public class Challenge {
     }
 
     public void addLecture(Lecture lecture) {
-        if (this.lectures == null) {
-            this.lectures = new ArrayList<>();
-        }
-        this.lectures.add(lecture);
+        this.lecture = lecture;
         lecture.setChallenge(this);
     }
 }

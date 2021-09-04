@@ -13,7 +13,7 @@ public class MyChallengeDto {
     @ApiModelProperty(value = "챌린지 id값", example = "1")
     private Long challengeId;
     @ApiModelProperty(value = "강의 id값", example = "1")
-    private List<Long> lecturesId;
+    private Long lectureId;
     @ApiModelProperty(value = "과목명(KOREAN, ENGLISH, MATH)" ,example = "KOREAN")
     private Category category;
     @ApiModelProperty(value = "제목", example = "5형식")
@@ -29,15 +29,9 @@ public class MyChallengeDto {
     @ApiModelProperty(value = "완료 여부", example = "true")
     private boolean complete;
 
-    public MyChallengeDto(Long challengeId, List<Lecture> lectures, Category category, String title, String subTitle, int totalScore, int requiredScore, int assignedCandy ,boolean complete) {
+    public MyChallengeDto(Long challengeId, Long lectureId, Category category, String title, String subTitle, int totalScore, int requiredScore, int assignedCandy ,boolean complete) {
         this.challengeId = challengeId;
-        
-        List<Long> lecturesId = new ArrayList<>();
-            
-        for (Lecture lecture : lectures)
-            lecturesId.add(lecture.getId());
-        
-        this.lecturesId = lecturesId;
+        this.lectureId = lectureId;
         this.category = category;
         this.title = title;
         this.subTitle = subTitle;

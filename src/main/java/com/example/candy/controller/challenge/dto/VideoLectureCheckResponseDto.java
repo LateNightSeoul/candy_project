@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VideoLectureCheckResponseDto {
 	@ApiModelProperty(value = "lecture url 값")
-    private List<String> lecturesUrl;
+    private String lectureUrl;
 }
