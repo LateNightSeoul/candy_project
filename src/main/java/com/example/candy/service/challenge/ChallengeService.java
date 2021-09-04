@@ -133,6 +133,7 @@ public class ChallengeService {
                     .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
             challengeHistory = new ChallengeHistory(user, findChallenge, amount);
         }
+        challengeHistory.setProgress(true);
         return saveChallengeHistory(challengeHistory);
     }
 
@@ -144,6 +145,7 @@ public class ChallengeService {
         }
         int candyAmount = findChallengeHistory.getAssignedCandy();
         findChallengeHistory.setAssignedCandy(0);
+        findChallengeHistory.setProgress(false);
         saveChallengeHistory(findChallengeHistory);
         return candyAmount;
     }
@@ -156,6 +158,7 @@ public class ChallengeService {
         }
         int assignedCandy = challengeHistory.getAssignedCandy();
         challengeHistory.setComplete(true);
+        challengeHistory.setProgress(false);
         challengeHistory.setCompleteDate(LocalDateTime.now());
         challengeHistory.setAssignedCandy(0);
         challengeHistory.setModifiedDate(LocalDateTime.now());

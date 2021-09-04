@@ -35,6 +35,7 @@ public class ChallengeHistory {
     private int score;
     private int assignedCandy;
     private boolean complete;
+    private boolean progress;
     private int tryCount;
     private LocalDateTime completeDate;
     private LocalDateTime createDate;
