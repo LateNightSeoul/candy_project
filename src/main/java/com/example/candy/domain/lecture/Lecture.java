@@ -18,7 +18,7 @@ public class Lecture {
     @Column(name = "lecture_id")
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "challenge_id")
     private Challenge challenge;
 
