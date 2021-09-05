@@ -113,7 +113,7 @@ public class ChallengeService {
         int highestScore = challengeHistory.saveScore(totalScore);
 
         saveChallengeHistory(challengeHistory);
-        
+
         return totalScore;
     }
 
