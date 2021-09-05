@@ -1,7 +1,6 @@
 package com.example.candy.service.challenge;
 
 import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
-import com.example.candy.controller.challenge.dto.ProblemMarkingRSDto;
 import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDto;
 import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDtoList;
 import com.example.candy.domain.challenge.Challenge;
@@ -19,7 +18,7 @@ import com.example.candy.repository.challenge.ProblemHistoryRepository;
 import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.repository.user.UserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.candy.service.candyHistory.CandyHistoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -37,8 +36,9 @@ public class ChallengeService {
     private final ChallengeDtoRepository challengeDtoRepository;
     private final ProblemRepository problemRepository;
     private final ProblemHistoryRepository problemHistoryRepository;
+    private final CandyHistoryService candyHistoryService;
 
-    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository, ProblemRepository problemRepository, ProblemHistoryRepository problemHistoryRepository) {
+    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository, ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository, ProblemRepository problemRepository, ProblemHistoryRepository problemHistoryRepository, CandyHistoryService candyHistoryService) {
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.challengeLikeRepository = challengeLikeRepository;
@@ -46,6 +46,7 @@ public class ChallengeService {
         this.challengeDtoRepository = challengeDtoRepository;
         this.problemRepository = problemRepository;
         this.problemHistoryRepository = problemHistoryRepository;
+        this.candyHistoryService = candyHistoryService;
     }
 
     @Transactional(readOnly = true)
@@ -79,9 +80,13 @@ public class ChallengeService {
         return challengeRepository.save(challenge);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int grading(Long userId, ProblemSolvedRequestDtoList problemSolvedRequestDtoList) {
         ChallengeHistory challengeHistory = findChallengeHistory(problemSolvedRequestDtoList.getChallengeId(), userId);
+        if (!challengeHistory.isComplete() && !challengeHistory.isProgress()) {
+            throw new IllegalStateException("챌린지를 완수하지 않은 경우, 캔디 배정 후 도전하여야 합니다.");
+        }
+        Challenge challenge = findChallenge(problemSolvedRequestDtoList.getChallengeId());
         List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
         List<Problem> problemList = findProblemByChallengeId(problemSolvedRequestDtoList.getChallengeId());
         Map<Long, Problem> problemMap = Problem.listToMap(problemList);
@@ -92,8 +97,7 @@ public class ChallengeService {
         for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
             if (!problemMap.containsKey(problemSolvedDto.getProblemId())) {
                 throw new IllegalStateException("Not Exist problemId");
-            }
-            if (problemSolvedDto.getProblemScore() == null) {
+            } else if (problemSolvedDto.getProblemScore() == null) {
                 throw new IllegalStateException("Need Problem Score");
             }
             ProblemHistory problemHistory = ProblemHistory.builder()
@@ -107,7 +111,9 @@ public class ChallengeService {
             solvedProblem(problemHistory);
         }
         int highestScore = challengeHistory.saveScore(totalScore);
+
         saveChallengeHistory(challengeHistory);
+
         return totalScore;
     }
 
@@ -187,6 +193,10 @@ public class ChallengeService {
                 .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
         if (challengeHistory.getAssignedCandy() <= 0) {
             throw new IllegalStateException("Assigned Candy is below 0");
+        } else if (challengeHistory.isComplete()) {
+            throw new IllegalStateException("Already completed");
+        } else if (!challengeHistory.isProgress()) {
+            throw new IllegalStateException("Not a progress challenge");
         }
         int assignedCandy = challengeHistory.getAssignedCandy();
         challengeHistory.setComplete(true);
