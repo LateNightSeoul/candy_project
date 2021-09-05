@@ -22,7 +22,7 @@ public class ChallengeDtoRepository {
                 "select new " +
                         "com.example.candy.controller.challenge.dto.ChallengeDto(c.id,c.category,c.title,c.subTitle," +
                         "cl.id," +
-                        "c.totalScore,c.requiredScore,c.lecture.id)" +
+                        "c.totalScore,c.requiredScore,c.lecture.id, c.level)" +
                         " from Challenge c" +
                         " left join ChallengeHistory ch on c.id = ch.challenge.id" +
                         " and ch.user.id = :userId" +
