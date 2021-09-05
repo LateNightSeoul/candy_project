@@ -119,16 +119,31 @@ public class UserService {
     @Transactional
     public Boolean new_pw(String email, String password) throws NotFoundException {
  
-    	User user = findByEmail(email)
-    			.orElseThrow(() -> new NotFoundException("User Not Found"));
-    	
-    	
-    	if(user.isAuth() == true) {
-    		user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
-    		return true;
-    	} else {
-    		return false;
-    	}
+        User user = findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        
+        if(user.isAuth() == true) {
+            user.setPassword(new BCryptPasswordEncoder().encode(password).toString());
+            user.setAuth(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public Boolean new_second_pw(String email, String parent_password) throws NotFoundException {
+ 
+        User user = findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        
+        if(user.isAuth() == true) {
+            user.setParentPassword(new BCryptPasswordEncoder().encode(parent_password).toString());
+            user.setAuth(false);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public UserInfoResponseDto getUserInfo(Long userId) throws NotFoundException {
@@ -148,6 +163,21 @@ public class UserService {
         User savedUser = save(user);
         return new UserInfoResponseDto(savedUser.getEmail(), savedUser.getName(), savedUser.getPhone(), savedUser.getBirth());
     }
+
+    @Transactional
+    public User changeParentPassword(Long userId, String newParentPassword, String originParentPassword) throws NotFoundException {
+        checkArgument(
+                newParentPassword.length() >= 4 && newParentPassword.length() <= 15,
+                "parentPassword length must be between 4 and 15 characters."
+        );
+        User user = findById(userId)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        user.verifyParentPassword(passwordEncoder, originParentPassword);
+        user.compareNewPassword(passwordEncoder, newParentPassword);
+        user.setParentPassword(passwordEncoder.encode(newParentPassword));
+        return save(user);
+    }
+
     @Transactional
     public User changePassword(Long userId, String newPassword, String originPassword) throws NotFoundException {
         checkArgument(
@@ -159,8 +189,7 @@ public class UserService {
         user.verifyPassword(passwordEncoder, originPassword);
         user.compareNewPassword(passwordEncoder, newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        save(user);
-        return user;
+        return save(user);
     }
 
 //    

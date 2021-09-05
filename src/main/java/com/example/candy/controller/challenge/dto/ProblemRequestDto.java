@@ -1,15 +1,16 @@
 package com.example.candy.controller.challenge.dto;
 
-import java.util.List;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
 
-@Getter
-public class VideoLectureViewRequestDto {
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter @Setter
+public class ProblemRequestDto {
+
 	@ApiModelProperty(value = "challenge id 값", example = "1")
     private Long challengeId;
-	
-	@ApiModelProperty(value = "lecture id 값", example = "1")
-    private Long lectureId;
+
 }

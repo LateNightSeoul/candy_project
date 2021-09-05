@@ -17,12 +17,10 @@ public class ChallengeRegisterFacade {
     public Challenge getChallenge() {
         Challenge challenge = Challenge.create(challengeRegisterRequestDto);
 
-        List<LectureDto> lectureDtoList = challengeRegisterRequestDto.getLectureDtoList();
+        LectureDto lectureDto = challengeRegisterRequestDto.getLectureDto();
 
-        for (LectureDto lectureDto : lectureDtoList) {
-            Lecture lecture = Lecture.create(lectureDto);
-            challenge.addLecture(lecture);
-        }
+        Lecture lecture = Lecture.create(lectureDto);
+        challenge.addLecture(lecture);
 
         List<ProblemDto> problemDtoList = challengeRegisterRequestDto.getProblemDtoList();
 

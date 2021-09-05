@@ -22,8 +22,10 @@ public class ChallengeDto {
     private int totalScore;
     @ApiModelProperty(value = "캔디를 받기위한 커트라인", example = "80")
     private int requiredScore;
+    @ApiModelProperty(value = "강의 id", example = "1")
+    private Long lectureId;
 
-    public ChallengeDto(Long id, Category category, String title, String subTitle, Object likeDone, int totalScore, int requiredScore) {
+    public ChallengeDto(Long id, Category category, String title, String subTitle, Object likeDone, int totalScore, int requiredScore, Long lectureId) {
         this.id = id;
         this.category = category;
         this.title = title;
@@ -33,5 +35,6 @@ public class ChallengeDto {
         }
         this.totalScore = totalScore;
         this.requiredScore = requiredScore;
+        this.lectureId = lectureId;
     }
 }

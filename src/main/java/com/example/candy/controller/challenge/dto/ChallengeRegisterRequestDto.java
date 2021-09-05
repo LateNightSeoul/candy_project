@@ -1,5 +1,6 @@
 package com.example.candy.controller.challenge.dto;
 
+import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.enums.Category;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -40,6 +41,6 @@ public class ChallengeRegisterRequestDto {
     private List<ProblemDto> problemDtoList;
 
     @ApiModelProperty(value = "강의 등록")
-    private List<LectureDto> lectureDtoList;
+    private LectureDto lectureDto;
 
 }

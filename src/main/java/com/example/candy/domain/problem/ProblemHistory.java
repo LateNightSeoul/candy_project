@@ -33,19 +33,18 @@ public class ProblemHistory {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
+    private int version;
     private boolean isSuccess;
     private boolean isMultiple;
     
-    private String answer;
-    private int multipleAnswer;
+    private Long problemScore;
 
     public static ProblemHistory create(ProblemSolvingDto problemSolvingDto, Problem problem, ChallengeHistory challengeHistory) {
         return ProblemHistory.builder()
                 .isSuccess(false)
                 .isMultiple(problemSolvingDto.isMultiple())
-                .multipleAnswer(problemSolvingDto.getMultipleAnswer())
-                .answer(problemSolvingDto.getAnswer())
                 .problem(problem)
+                .problemScore(0L)
                 .challengeHistory(challengeHistory)
                 .build();
     }

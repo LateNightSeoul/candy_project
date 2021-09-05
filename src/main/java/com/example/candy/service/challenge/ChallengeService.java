@@ -1,7 +1,8 @@
 package com.example.candy.service.challenge;
 
 import com.example.candy.controller.challenge.dto.ChallengeDetailResponseDto;
-import com.example.candy.controller.challenge.dto.ProblemMarkingRSDto;
+import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDto;
+import com.example.candy.controller.challenge.dto.ProblemSolvedRequestDtoList;
 import com.example.candy.domain.challenge.Challenge;
 import com.example.candy.domain.challenge.ChallengeHistory;
 import com.example.candy.domain.problem.Problem;
@@ -17,17 +18,14 @@ import com.example.candy.repository.challenge.ProblemHistoryRepository;
 import com.example.candy.repository.challenge.ProblemRepository;
 import com.example.candy.repository.user.UserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.candy.service.candyHistory.CandyHistoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ChallengeService {
@@ -38,8 +36,9 @@ public class ChallengeService {
     private final ChallengeDtoRepository challengeDtoRepository;
     private final ProblemRepository problemRepository;
     private final ProblemHistoryRepository problemHistoryRepository;
+    private final CandyHistoryService candyHistoryService;
 
-    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository,ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository, ProblemRepository problemRepository, ProblemHistoryRepository problemHistoryRepository) {
+    public ChallengeService(UserRepository userRepository, ChallengeRepository challengeRepository, ChallengeLikeRepository challengeLikeRepository, ChallengeHistoryRepository challengeHistoryRepository, ChallengeDtoRepository challengeDtoRepository, ProblemRepository problemRepository, ProblemHistoryRepository problemHistoryRepository, CandyHistoryService candyHistoryService) {
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.challengeLikeRepository = challengeLikeRepository;
@@ -47,6 +46,7 @@ public class ChallengeService {
         this.challengeDtoRepository = challengeDtoRepository;
         this.problemRepository = problemRepository;
         this.problemHistoryRepository = problemHistoryRepository;
+        this.candyHistoryService = candyHistoryService;
     }
 
     @Transactional(readOnly = true)
@@ -80,45 +80,80 @@ public class ChallengeService {
         return challengeRepository.save(challenge);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public int grading(Long userId, ProblemSolvedRequestDtoList problemSolvedRequestDtoList) {
+        ChallengeHistory challengeHistory = findChallengeHistory(problemSolvedRequestDtoList.getChallengeId(), userId);
+        if (!challengeHistory.isComplete() && !challengeHistory.isProgress()) {
+            throw new IllegalStateException("챌린지를 완수하지 않은 경우, 캔디 배정 후 도전하여야 합니다.");
+        }
+        Challenge challenge = findChallenge(problemSolvedRequestDtoList.getChallengeId());
+        List<ProblemSolvedRequestDto> problemSolvedRequestDto = problemSolvedRequestDtoList.getProblemSolvedRequestDto();
+        List<Problem> problemList = findProblemByChallengeId(problemSolvedRequestDtoList.getChallengeId());
+        Map<Long, Problem> problemMap = Problem.listToMap(problemList);
+
+        int totalScore = 0;
+        challengeHistory.setTryCount(challengeHistory.getTryCount() + 1);
+
+        for (ProblemSolvedRequestDto problemSolvedDto : problemSolvedRequestDto) {
+            if (!problemMap.containsKey(problemSolvedDto.getProblemId())) {
+                throw new IllegalStateException("Not Exist problemId");
+            } else if (problemSolvedDto.getProblemScore() == null) {
+                throw new IllegalStateException("Need Problem Score");
+            }
+            ProblemHistory problemHistory = ProblemHistory.builder()
+                    .challengeHistory(challengeHistory)
+                    .problem(problemMap.get(problemSolvedDto.getProblemId()))
+                    .isSuccess(problemSolvedDto.getProblemScore() > 0)
+                    .problemScore(problemSolvedDto.getProblemScore())
+                    .version(challengeHistory.getTryCount())
+                    .build();
+            totalScore += problemSolvedDto.getProblemScore();
+            solvedProblem(problemHistory);
+        }
+        int highestScore = challengeHistory.saveScore(totalScore);
+
+        saveChallengeHistory(challengeHistory);
+
+        return totalScore;
+    }
+
     @Transactional
     public void solvedProblem(ProblemHistory problemHistory) {
     	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
     	
     	OproblemHistory.ifPresentOrElse(CproblemHistory -> {
     		CproblemHistory.setId(OproblemHistory.get().getId());
-    		CproblemHistory.setAnswer(problemHistory.getAnswer());
     		CproblemHistory.setChallengeHistory(problemHistory.getChallengeHistory());
-    		CproblemHistory.setMultiple(problemHistory.isMultiple());
     		CproblemHistory.setSuccess(problemHistory.isSuccess());
     		CproblemHistory.setProblem(problemHistory.getProblem());
-    		CproblemHistory.setMultipleAnswer(problemHistory.getMultipleAnswer());
+            CproblemHistory.setProblemScore(problemHistory.getProblemScore());
     		
     		problemHistoryRepository.save(CproblemHistory);
     	}, () -> {problemHistoryRepository.save(problemHistory);});
     }
     
-    @Transactional
-    public ProblemMarkingRSDto markedProblem(ProblemHistory problemHistory) {
-//    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
-    	String answerMark;
+//     @Transactional
+//     public ProblemMarkingRSDto markedProblem(ProblemHistory problemHistory) {
+// //    	Optional<ProblemHistory> OproblemHistory = problemHistoryRepository.findByProblem_id(problemHistory.getProblem().getId());
+//     	String answerMark;
     	
-    	Problem problem = problemRepository.findById(problemHistory.getProblem().getId())
-    			.orElseThrow(() -> new NotFoundException("Problem Not Found"));
+//     	Problem problem = problemRepository.findById(problemHistory.getProblem().getId())
+//     			.orElseThrow(() -> new NotFoundException("Problem Not Found"));
     	
-    	if(problem.isMultiple() == true) {
-    		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
+//     	if(problem.isMultiple() == true) {
+//     		answerMark = (problem.getMultipleAnswer() == problemHistory.getMultipleAnswer()) ? "O" : "X";
     		
     		
-    	}else {
-    		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
-    	}
+//     	}else {
+//     		answerMark = (problem.getAnswer() == problemHistory.getAnswer()) ? "O" : "X";
+//     	}
     	
-    	if(Objects.equals(answerMark, "O")) {
-			problemHistory.setSuccess(true);
-		}
+//     	if(Objects.equals(answerMark, "O")) {
+// 			problemHistory.setSuccess(true);
+// 		}
     	
-    	return new ProblemMarkingRSDto(answerMark); 
-    }
+//     	return new ProblemMarkingRSDto(answerMark); 
+//     }
 
 
     public ChallengeHistory assignCandyInChallengeHistory(Long challengeId, int amount, User user) {
@@ -135,6 +170,8 @@ public class ChallengeService {
                     .orElseThrow(() -> new NoSuchElementException("No Such Challenge"));
             challengeHistory = new ChallengeHistory(user, findChallenge, amount);
         }
+        challengeHistory.setProgress(true);
+        challengeHistory.setScore(0);
         return saveChallengeHistory(challengeHistory);
     }
 
@@ -146,6 +183,7 @@ public class ChallengeService {
         }
         int candyAmount = findChallengeHistory.getAssignedCandy();
         findChallengeHistory.setAssignedCandy(0);
+        findChallengeHistory.setProgress(false);
         saveChallengeHistory(findChallengeHistory);
         return candyAmount;
     }
@@ -155,9 +193,14 @@ public class ChallengeService {
                 .orElseThrow(() -> new NoSuchElementException("No Such ChallengeHistory"));
         if (challengeHistory.getAssignedCandy() <= 0) {
             throw new IllegalStateException("Assigned Candy is below 0");
+        } else if (challengeHistory.isComplete()) {
+            throw new IllegalStateException("Already completed");
+        } else if (!challengeHistory.isProgress()) {
+            throw new IllegalStateException("Not a progress challenge");
         }
         int assignedCandy = challengeHistory.getAssignedCandy();
         challengeHistory.setComplete(true);
+        challengeHistory.setProgress(false);
         challengeHistory.setCompleteDate(LocalDateTime.now());
         challengeHistory.setAssignedCandy(0);
         challengeHistory.setModifiedDate(LocalDateTime.now());
@@ -171,7 +214,7 @@ public class ChallengeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
-        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, true, lastChallengeId, pageRequest);
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndProgressAndChallenge_idLessThanOrderByChallenge_idDesc(user, true, false,lastChallengeId, pageRequest);
         List<ChallengeHistory> challengeHistoryList = page.getContent();
         return challengeHistoryList;
     }
@@ -182,7 +225,7 @@ public class ChallengeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
         PageRequest pageRequest = PageRequest.of(0, size); // 페이지네이션을 위한 PageRequest, 페이지는 0으로 고정한다.
-        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndChallenge_idLessThanOrderByChallenge_idDesc(user, false, lastChallengeId, pageRequest);
+        Page<ChallengeHistory> page = challengeHistoryRepository.findByUserAndCompleteAndProgressAndChallenge_idLessThanOrderByChallenge_idDesc(user, false, true,lastChallengeId, pageRequest);
         List<ChallengeHistory> challengeHistoryList = page.getContent();
         return challengeHistoryList;
     }
@@ -192,6 +235,10 @@ public class ChallengeService {
             .orElseThrow(() -> new NotFoundException("Problem Not Found"));
 
         return problem;
+    }
+
+    public List<Problem> findProblemByChallengeId(Long challengeId) {
+        return problemRepository.findByChallenge_Id(challengeId);
     }
     
     public ProblemHistory findProblemHistory(Long challengeHistoryId, Long problemId) {
@@ -213,6 +260,12 @@ public class ChallengeService {
     			.orElseThrow(() -> new NotFoundException("Challenge Not Found"));
     	
     	return challenge;
+    }
+
+    public int findScore(Long challengeId, Long userId) {
+        ChallengeHistory challengeHistory = challengeHistoryRepository.findByChallenge_idAndUser_id(challengeId, userId)
+                .orElseThrow(() -> new NotFoundException("Challenge History Not Found"));
+        return challengeHistory.getScore();
     }
 
     public ChallengeDetailResponseDto findChallengeDetail(Long userId, Long challengeId) {

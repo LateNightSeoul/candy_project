@@ -1,17 +1,24 @@
 package com.example.candy.controller.challenge.dto;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter @Setter
-public class ProblemDto {
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    @ApiModelProperty(value = "보기 등록")
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProblemResponseDto {
+
+	@ApiModelProperty(value = "보기 등록")
     private List<ChoiceDto> choiceDtoList;
+
+	@ApiModelProperty(value = "problemId", example = "proble/solve 시 해당 정보를 꼭 맞게 입력해야 합니다.")
+	private Long problemId;
 
     @ApiModelProperty(value = "문제 번호", example = "1")
     private int seq;

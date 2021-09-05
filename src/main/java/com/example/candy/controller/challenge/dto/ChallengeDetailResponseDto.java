@@ -18,7 +18,7 @@ public class ChallengeDetailResponseDto {
     @ApiModelProperty(value = "부제목", example = "5형식 동사에 대한 이해")
     private String subTitle;
     @ApiModelProperty(value = "해당 미션 완료 여부", example = "true")
-    private boolean complete = false;
+    private Boolean complete = false;
     @ApiModelProperty(value = "배정된 캔디", example = "10")
     private int assignedCandy = 0;
     @ApiModelProperty(value = "좋아요 여부", example = "false")
@@ -43,18 +43,16 @@ public class ChallengeDetailResponseDto {
     @ApiModelProperty(value = "챌린지에 있는 문제의 개수", example = "3")
     private int problemCount;
 
-    public ChallengeDetailResponseDto(Long challengeId, String title, String subTitle, Object complete, Object assignedCandy, Object id, Category category, String description,
+    public ChallengeDetailResponseDto(Long challengeId, String title, String subTitle, Boolean complete, Integer assignedCandy, Long id, Category category, String description,
                                       int totalScore, int requiredScore, int level, int problemCount) {
+        System.out.println("****************" + complete);
         this.challengeId = challengeId;
         this.title = title;
         this.subTitle = subTitle;
-        if(complete != null) {
-            this.complete = true;
-        }
+        this.complete = complete;
         if(assignedCandy != null) {
-            this.assignedCandy = (int)assignedCandy;
+            this.assignedCandy = assignedCandy.intValue();
         }
-
         if (id != null) {
             this.likeDone = true;
         }

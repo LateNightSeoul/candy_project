@@ -68,10 +68,16 @@ public class UserController {
     	return ApiResult.OK(userService.validate(validateEmailRequestDto.getEmail(), validateEmailRequestDto.getAuth()));
     }
 
-    @PostMapping("/new_pw")
+    @PostMapping("/password/new")
     @ApiOperation(value = "새로운 비밀번호 설정 (비밀번호 찾기 시)", notes = "이메일 인증했을 시 true, 인증하지 않았을 시 false 반환")
     public ApiResult<Boolean> findPassword(@RequestBody @ApiParam NewPasswordRequestDto newPasswordRequestDto) throws NotFoundException {
-    	return ApiResult.OK(userService.new_pw(newPasswordRequestDto.getEmail(), newPasswordRequestDto.getPassword()));
+        return ApiResult.OK(userService.new_pw(newPasswordRequestDto.getEmail(), newPasswordRequestDto.getPassword()));
+    }
+
+    @PostMapping("/password/second/new")
+    @ApiOperation(value = "새로운 2차 비밀번호 설정 (2차 비밀번호 찾기 시)", notes = "이메일 인증했을 시 true, 인증하지 않았을 시 false 반환")
+    public ApiResult<Boolean> findSecondPassword(@RequestBody @ApiParam NewParentPasswordRequestDto newParentPasswordRequestDto) throws NotFoundException {
+        return ApiResult.OK(userService.new_second_pw(newParentPasswordRequestDto.getEmail(), newParentPasswordRequestDto.getParentPassword()));
     }
 
     @GetMapping("/info")
@@ -87,8 +93,17 @@ public class UserController {
                 changeUserInfoRequestDto.getPhone(), changeUserInfoRequestDto.getBirth()));
     }
 
+    @PostMapping("/parent/password/change")
+    @ApiOperation(value = "부모 비밀번호 재설정")
+    public ApiResult<ChangeParentPasswordResponseDto> changeParentPassword(@AuthenticationPrincipal JwtAuthentication authentication,
+                                                                          @RequestBody @ApiParam ChangeParentPasswordRequestDto changeParentPasswordRequestDto) throws NotFoundException {
+        User user = userService.changeParentPassword(authentication.id, changeParentPasswordRequestDto.getNewParentPassword(),
+                changeParentPasswordRequestDto.getOriginParentPassword());
+        return ApiResult.OK(new ChangeParentPasswordResponseDto(user.getId()));
+    }
+
     @PostMapping("/password/change")
-    @ApiOperation(value = "새로운 비밀번호 설정 (로그인 후 유저 정보 페이지에서)", notes = "이메일 인증 필요 X")
+    @ApiOperation(value = "비밀번호 재설정 (로그인 후 유저 정보 페이지에서)", notes = "이메일 인증 필요 X")
     public ApiResult<ChangePasswordResponseDto> changePassword(@AuthenticationPrincipal JwtAuthentication authentication,
                                              @RequestBody @ApiParam ChangePasswordRequestDto changePasswordRequestDto) throws NotFoundException {
         User user = userService.changePassword(authentication.id, changePasswordRequestDto.getNewPassword(), changePasswordRequestDto.getOriginPassword());
