@@ -113,10 +113,7 @@ public class ChallengeService {
         int highestScore = challengeHistory.saveScore(totalScore);
 
         saveChallengeHistory(challengeHistory);
-
-        if (challenge.getRequiredScore() <= totalScore && challengeHistory.isProgress() && !challengeHistory.isComplete()) {
-            candyHistoryService.attainCandy(userId, problemSolvedRequestDtoList.getChallengeId());
-        }
+        
         return totalScore;
     }
 
