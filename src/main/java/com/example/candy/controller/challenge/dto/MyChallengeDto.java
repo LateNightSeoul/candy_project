@@ -28,8 +28,11 @@ public class MyChallengeDto {
     private int assignedCandy;
     @ApiModelProperty(value = "완료 여부", example = "true")
     private boolean complete;
+    @ApiModelProperty(value = "챌린지 level", example = "2")
+    private int level;
 
-    public MyChallengeDto(Long challengeId, Long lectureId, Category category, String title, String subTitle, int totalScore, int requiredScore, int assignedCandy ,boolean complete) {
+    public MyChallengeDto(Long challengeId, Long lectureId, Category category, String title, String subTitle,
+                          int totalScore, int requiredScore, int assignedCandy ,boolean complete, int level) {
         this.challengeId = challengeId;
         this.lectureId = lectureId;
         this.category = category;
@@ -39,5 +42,6 @@ public class MyChallengeDto {
         this.requiredScore = requiredScore;
         this.assignedCandy = assignedCandy;
         this.complete = complete;
+        this.level = level;
     }
 }
