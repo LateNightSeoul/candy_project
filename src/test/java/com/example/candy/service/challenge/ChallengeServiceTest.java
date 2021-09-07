@@ -101,7 +101,7 @@ public class ChallengeServiceTest {
     @Order(1)
     @Transactional
     public void 챌린지_등록() {
-        System.out.println("saveChallenge.getLectures().get(0).getVideoUrl() = " + challenge.getLectures().get(0).getVideoUrl());
+        System.out.println("saveChallenge.getLectures().get(0).getVideoUrl() = " + challenge.getLecture().getVideoUrl());
         System.out.println("saveChallenge.getTitle() = " + challenge.getTitle());
         System.out.println("saveChallenge.getProblems().get(0).getContent() = " + challenge.getProblems().get(0).getContent());
         System.out.println("saveChallenge.getProblems().get(0).getChoices().get(0)..getSeq() = " + challenge.getProblems().get(0).getChoices().get(0).getSeq());
