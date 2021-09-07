@@ -8,7 +8,6 @@ import com.example.candy.domain.challenge.ChallengeLike;
 import com.example.candy.domain.choice.Choice;
 import com.example.candy.domain.lecture.Lecture;
 import com.example.candy.domain.problem.Problem;
-import com.example.candy.domain.problem.ProblemHistory;
 import com.example.candy.enums.Category;
 import com.example.candy.repository.challenge.ChallengeDtoRepository;
 import com.example.candy.security.JwtAuthentication;
@@ -129,7 +128,7 @@ public class ChallengeController {
         for (ChallengeLike challengeLike : challengeLikeList) {
             Challenge challenge = challengeLike.getChallenge();
             ChallengeDto challengeDto = new ChallengeDto(challenge.getId(), challenge.getCategory(), challenge.getTitle(),
-                    challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore(),challenge.getLecture().getId());
+                    challenge.getSubTitle(),1l,challenge.getTotalScore(),challenge.getRequiredScore(),challenge.getLecture().getId(),challenge.getLevel());
             challengeDtoList.add(challengeDto);
         }
         return ApiResult.OK(challengeDtoList);
@@ -172,8 +171,8 @@ public class ChallengeController {
 
     private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
         return new MyChallengeDto(challenge.getId(), challenge.getLecture().getId(), challenge.getCategory(),
-                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
-                challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete());
+                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),challenge.getDescription(),
+                challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete(), challenge.getLevel());
     }
 
     @GetMapping("/{challengeId}/detail")

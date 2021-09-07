@@ -55,6 +55,7 @@ public class Problem {
                 .content(problemDto.getContent())
                 .score(problemDto.getScore())
                 .isMultiple(problemDto.isMultiple())
+                .multipleCount(problemDto.getMultipleCount())
                 .answer(problemDto.getAnswer())
                 .multipleAnswer(problemDto.getMultipleAnswer())
                 .modifiedDate(LocalDateTime.now())
