@@ -20,6 +20,8 @@ public class MyChallengeDto {
     private String title;
     @ApiModelProperty(value = "부제목", example = "5형식 동사에 대한 이해")
     private String subTitle;
+    @ApiModelProperty(value = "챌린지 상세 설명", example = "5형식 동사의 다양한 예시를 통해 이해를 높입니다.")
+    private String description;
     @ApiModelProperty(value = "총점수", example = "100")
     private int totalScore;
     @ApiModelProperty(value = "캔디를 받기위한 커트라인", example = "80")
@@ -32,13 +34,14 @@ public class MyChallengeDto {
     private int level;
 
     public MyChallengeDto(Long challengeId, Long lectureId, Category category, String title, String subTitle,
-                          int totalScore, int requiredScore, int assignedCandy ,boolean complete, int level) {
+                          int totalScore, String description, int requiredScore, int assignedCandy ,boolean complete, int level) {
         this.challengeId = challengeId;
         this.lectureId = lectureId;
         this.category = category;
         this.title = title;
         this.subTitle = subTitle;
         this.totalScore = totalScore;
+        this.description = description;
         this.requiredScore = requiredScore;
         this.assignedCandy = assignedCandy;
         this.complete = complete;

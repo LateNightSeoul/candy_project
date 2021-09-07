@@ -171,7 +171,7 @@ public class ChallengeController {
 
     private MyChallengeDto createMyChallengeDto(Challenge challenge, ChallengeHistory challengeHistory) {
         return new MyChallengeDto(challenge.getId(), challenge.getLecture().getId(), challenge.getCategory(),
-                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),
+                challenge.getTitle(), challenge.getSubTitle(), challenge.getTotalScore(),challenge.getDescription(),
                 challenge.getRequiredScore(),challengeHistory.getAssignedCandy() ,challengeHistory.isComplete(), challenge.getLevel());
     }
 
