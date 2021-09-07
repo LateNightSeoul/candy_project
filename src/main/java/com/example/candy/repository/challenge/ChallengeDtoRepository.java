@@ -29,9 +29,9 @@ public class ChallengeDtoRepository {
                         " left join ChallengeLike cl on c.id = cl.challenge.id" +
                         " and cl.user.id = :userId" +
                         " where c.id < :lastChallengeId" +
-                        " and ch.challenge.id is null " +
-                        " or (ch.progress = false and ch.complete = false)" +
-                        " order by c.id desc" , ChallengeDto.class)
+                        " and ((ch.challenge.id is null) " +
+                        " or (ch.progress = false and ch.complete = false))" +
+                        " order by c.id desc", ChallengeDto.class)
                 .setParameter("userId", userId)
                 .setParameter("lastChallengeId", lastChallengeId)
                 .setMaxResults(size)
