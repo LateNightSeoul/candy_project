@@ -87,7 +87,10 @@ Candy-Server\build\libs 의 jar 파일 실행 후  8080포트로 접근 가능
 https://www.youtube.com/watch?v=tUKArhwD6yM
 
 
+
+
 ## 실행 화면 
+
 
 
 ### 시작 화면
@@ -96,9 +99,11 @@ https://www.youtube.com/watch?v=tUKArhwD6yM
 
 
 
+
 ### 로그인 
 
 ![image](https://user-images.githubusercontent.com/60308568/132363015-d9e27998-451d-47e7-8db7-71551be4525a.png)
+
 
 
 
@@ -110,9 +115,11 @@ https://www.youtube.com/watch?v=tUKArhwD6yM
 
 
 
+
 ### 캔디 배정
  
 ![image](https://user-images.githubusercontent.com/60308568/132362208-d2489c2a-2124-4ffd-ae96-124b44475ab7.png)
+
 
 
 
@@ -123,9 +130,11 @@ https://www.youtube.com/watch?v=tUKArhwD6yM
 
 
 
+
 ### 강의 듣기
 
 ![image](https://user-images.githubusercontent.com/60308568/132362374-33c4e245-7ada-45ab-846e-4bc13034620a.png)
+
 
 
 
@@ -133,6 +142,7 @@ https://www.youtube.com/watch?v=tUKArhwD6yM
    커트라인 이상 획득 시 캔디를 획득합니다.
     
 ![image](https://user-images.githubusercontent.com/60308568/132362427-54b82b10-7652-4e7f-ad74-c5ad3390eff4.png)
+
 
 
 
